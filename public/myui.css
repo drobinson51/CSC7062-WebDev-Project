@@ -1,0 +1,37 @@
+.pure-menu-scrollable {
+  background-color: purple !important;
+  color: black !important;
+}
+
+body {
+  color: white;
+  background-color: #333;
+}
+
+.pure-g {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h3 {
+  font-size: x-large;
+}
+
+.pure-u-md-1-2-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  margin-top: -125px;
+  margin-left: -250px;
+}
+
+.register {
+  display: block;
+  text-align: center;
+}
