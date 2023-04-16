@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 app.use( sessions({
-    secret: "myshows14385899",
+    secret: "stacksofwax1234567",
     saveUninitialized: true,
     cookie: { maxAge: oneHour },
     resave: false,
@@ -30,7 +30,7 @@ let db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "7062",
+  database: "cs7062project",
   port: "3306",
 });
 
@@ -90,13 +90,22 @@ app.post('/admin/add', (req, res) => {
     let artistname = req.body.artistField;
     // let albumdesc = req.body.descField;
     let albumdesc = "Troubleshooting as we speak";
-    // res.send(`You have not added ${albumname}, ${artistname}, ${albumdesc}`);
-    let albumsql = "INSERT INTO my_albums (albumname, albumartist, albumdesc) VALUES( ? , ? , ?)";
-    db.query(albumsql,[albumname, artistname, albumdesc],(err, rows)=>{
-      if(err) throw err;
-      res.send(`You have added: <p>${albumname}</p> <p>${artistname}</p> <p>${albumdesc}</p>`);
+    let releaseyear = req.body.albumyear;
+    var genre = req.body.genretypes;
+
+    if (genre === 'Nu Metal') {
+      genre = 1;
+    } else if (genre === 'Rock n Roll') {
+      genre = 2;
+    }
+    
+    res.send(`You have not added ${albumname}, ${artistname}, ${albumdesc}, ${releaseyear}, ${genre}`);
+    let albumsql = "INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) VALUES( ? , ? , ? , ? , ?)";
+    // db.query(albumsql,[albumname, artistname, albumdesc, releaseyear, genre],(err, rows)=>{
+    //   if(err) throw err;
+      res.send(`You have added: <p>${albumname}</p> <p>${artistname}</p> <p>${albumdesc}</p> <p>${releaseyear}</p> <p>${genre}</p>` );
   });
-});
+// });
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server is running at port 3000");
