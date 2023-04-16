@@ -88,10 +88,10 @@ app.get('/admin/add', (req, res) => {
 app.post('/admin/add', (req, res) => {
     let albumname = req.body.albumField;
     let artistname = req.body.artistField;
-    // let albumdesc = req.body.descField;
-    let albumdesc = "Troubleshooting as we speak";
+    let albumdesc = req.body.descField;
+    // let albumdesc = "Troubleshooting as we speak";
     let releaseyear = req.body.albumyear;
-    var genre = req.body.genretypes;
+    let genre = req.body.genretypes;
 
     if (genre === 'Nu Metal') {
       genre = 1;
@@ -99,13 +99,14 @@ app.post('/admin/add', (req, res) => {
       genre = 2;
     }
     
-    res.send(`You have not added ${albumname}, ${artistname}, ${albumdesc}, ${releaseyear}, ${genre}`);
+    // res.send(`You have not added ${albumname}, ${artistname}, ${albumdesc}, ${releaseyear}, ${genre}`);
     let albumsql = "INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) VALUES( ? , ? , ? , ? , ?)";
-    // db.query(albumsql,[albumname, artistname, albumdesc, releaseyear, genre],(err, rows)=>{
-    //   if(err) throw err;
+    db.query(albumsql,[albumname, artistname, albumdesc, releaseyear, genre],(err, rows)=>{
+      if(err) throw err;
       res.send(`You have added: <p>${albumname}</p> <p>${artistname}</p> <p>${albumdesc}</p> <p>${releaseyear}</p> <p>${genre}</p>` );
   });
-// });
+});
+
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server is running at port 3000");
