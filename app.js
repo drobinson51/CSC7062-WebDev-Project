@@ -1,3 +1,5 @@
+
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const mysql = require("mysql");
@@ -9,7 +11,87 @@ const oneHour = 1000 * 60 * 60 * 1;
 
 app.set("view engine", "ejs");
 
+const PORT = process.env.PORT || 4000;
 
+const connection = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PW,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit:10,
+    port:process.env.DB_PORT,
+    multipleStatements: true
+});
+
+connection.getConnection((err)=>{
+    if(err) return console.log(err.message);
+    console.log("connected to local mysql db using .env properties");
+});
+
+
+
+
+app.use(express.urlencoded({extended: true}));
+
+app.get('/albumoutput', (req, res)=> { 
+  let allalbums = `SELECT * FROM album`;
+
+  db.query(allalbums, (err, data) => {
+    if (err) throw err;
+    res.json({data});
+  });
+
+});
+
+app.get('/albumoutput/:rowid', (req, res)=> { 
+    let rowid = req.params.rowid;
+    let getalbum = `Select * FROM album WHERE album_id = ${rowid}`;
+    db.query(getalbum, (err, data) => {
+      if (err) throw err;
+      res.json({data});
+    });
+
+});
+
+app.post('/albumoutput/add', (req, res)=> { 
+
+  let album = req.body.albumField;
+  let artist = req.body.artistField;
+  let album_desc = req.body.descField;
+  let year_of_release = req.body.albumyear
+  let genre = req.body.genretypes;
+
+  if (genre === "Nu Metal") {
+    genre = 1;
+  }
+
+  let addalbum = `INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) 
+                  VALUES('${album}', '${artist}', '${album_desc}', '${year_of_release}', '${genre}'); `;
+
+  db.query(addalbum, (err, data) => {  
+      if(err) {
+          res.json({err});
+          throw err;
+      }
+
+      if(data){
+          let respObj ={
+              id: data.insertId,
+              title: album,
+              message: `${album} album added to menu`,
+          };
+          res.json({respObj});
+      }
+      
+  });
+});
+
+
+const server = app.listen(PORT, () => {
+    console.log(`API started on port ${server.address().port}`);
+});
 
 
 app.use(express.urlencoded({ extended: true }));
