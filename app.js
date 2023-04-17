@@ -45,18 +45,18 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  let useremail = req.body.emailString;
+  let username = req.body.emailString;
   let userpassword = req.body.passwordString;
 
-  let checkuser = "SELECT * FROM my_users WHERE email = ? AND password = ?";
+  let checkuser = "SELECT * FROM auth_user WHERE username = ? AND password = ?";
 
-  db.query(checkuser, [useremail, userpassword], (err, rows) => {
+  db.query(checkuser, [username, userpassword], (err, rows) => {
     if (err) throw err;
     let numRows = rows.length;
 
     if (numRows > 0) {
       let sessionobj = req.session;
-      sessionobj.authen = rows[0].id;
+      sessionobj.authen = rows[0].user_id;
       res.redirect('/home');
     } else {
       res.redirect('/')
@@ -69,7 +69,7 @@ app.get('/home', (req,res) => {
   let sessionobj = req.session;
   if(sessionobj.authen){
     let userid = sessionobj.authen;
-    let user = "SELECT * FROM my_users WHERE id = ?";
+    let user = "SELECT * FROM auth_user WHERE user_id = ?";
 
     db.query(user, [userid], (err, row) => {
       let firstrow = row[0];
@@ -99,13 +99,62 @@ app.post('/admin/add', (req, res) => {
       genre = 2;
     }
     
-    // res.send(`You have not added ${albumname}, ${artistname}, ${albumdesc}, ${releaseyear}, ${genre}`);
     let albumsql = "INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) VALUES( ? , ? , ? , ? , ?)";
     db.query(albumsql,[albumname, artistname, albumdesc, releaseyear, genre],(err, rows)=>{
       if(err) throw err;
       res.send(`You have added: <p>${albumname}</p> <p>${artistname}</p> <p>${albumdesc}</p> <p>${releaseyear}</p> <p>${genre}</p>` );
   });
 });
+
+
+app.get('/album', (req, res) => {
+    let readsql = "SELECT * FROM album"
+    db.query(readsql, (err, rows) => {
+      if (err) throw err;
+      // let stringdata = JSON.stringify(rows);
+      let rowdata = rows;
+      // res.send(`<h2>My Albums</h2><code> ${stringdata} </code>`);
+      res.render('album', {title: 'List of albums', rowdata});
+    });
+});
+
+app.get('/albuminfo', (req, res) => {
+  let readsql = "SELECT * FROM album"
+  db.query(readsql, (err, rows) => {
+    if (err) throw err;
+    // let stringdata = JSON.stringify(rows);
+    let rowdata = rows;
+    // res.send(`<h2>My Albums</h2><code> ${stringdata} </code>`);
+    res.render('albuminfo', {title: 'List of albums', rowdata});
+  });
+});
+
+app.get("/row",(req,res) => {
+    let albumid = req.query.albumid;
+
+    let readsql = "SELECT * FROM album WHERE album_id = ?";
+    
+    db.query(readsql, [albumid], (err, rows)=>{
+        if(err) throw err;
+
+        if (rows[0]['genre_id'] === 1) {
+          rows[0]['genre_id'] = "Nu Metal"
+        }
+        let album = {
+          album_title: rows[0]['album_title'],
+          artist: rows[0]['artist'],
+          album_desc: rows[0]['album_desc'],
+          year_of_release: rows[0]['year_of_release'],
+          genre: rows[0]['genre_id'],
+          
+          
+        };
+        
+
+        res.render('albuminfo', {album});
+    });
+});
+
 
 
 app.listen(process.env.PORT || 3000, () => {

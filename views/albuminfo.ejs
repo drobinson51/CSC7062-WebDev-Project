@@ -41,18 +41,25 @@
 
 <div class="pure-u-1 pure-u-md-1-2-text"> 
     <header>
-        <h1> <%= title %> </h1>
-        <p>This web app uses Node, Express and MySQL to display Albums held in the Stack of Wax</p>
+        <% album.album_title  %>
       </header>
       <main>
-        <% rowdata.forEach((album)=> { %>
-            <p>
-                <%= album.album_title %>
-				<span>
-					<a href="/row?albumid=<%=album.album_id%>">details</a> 
-				</span>
-            </p>
-        <% }) %>
+        <p>
+            <%= album.artist %>
+        </p>
+       
+        <p>
+                <%= album.album_desc %>
+        </p>
+
+        <p>
+           This album was released in: <%= album.year_of_release %>
+        </p>
+
+        <p>
+            This is a <%= album.genre %> album
+         </p>
+        
       </main>
 	</div>
 </div>
