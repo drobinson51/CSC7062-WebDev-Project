@@ -1,6 +1,9 @@
 
+
+
 require('dotenv').config();
 const express = require("express");
+const axios = require("axios");
 const app = express();
 const mysql = require("mysql");
 
@@ -10,6 +13,9 @@ const sessions = require("express-session");
 const oneHour = 1000 * 60 * 60 * 1;
 
 app.set("view engine", "ejs");
+
+app.use(express.urlencoded({extended: true}));
+
 
 const PORT = process.env.PORT || 4000;
 
@@ -33,10 +39,41 @@ connection.getConnection((err)=>{
 
 
 
-app.use(express.urlencoded({extended: true}));
+
+
+
+app.get('/addalbum', (req, res)=> { 
+
+  let ep = "http://localhost:4000/albumoutput/"
+
+  axios.get(ep).then((response) => {
+    let albumdata = response.data;
+    res.render('addalbum', {titletext: 'Albums', albumdata});
+  });
+
+
+
+
+
+});
+
+
+app.get('/inspect', (req, res)=> {  
+  let ep = `http://localhost:4000/albumoutput/ `;
+
+  axios.get(ep).then((response) => {
+    let albumdata = response.data;
+    res.render('apialbuminfo', {titletext: 'Albums', albumdata});
+  });
+
+  });
 
 app.get('/albumoutput', (req, res)=> { 
-  let allalbums = `SELECT * FROM album`;
+  let allalbums = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name
+  FROM album
+  INNER JOIN genre
+  ON album.genre_id = genre.genre_id;`
+;
 
   db.query(allalbums, (err, data) => {
     if (err) throw err;
@@ -45,9 +82,19 @@ app.get('/albumoutput', (req, res)=> {
 
 });
 
+
 app.get('/albumoutput/:rowid', (req, res)=> { 
     let rowid = req.params.rowid;
-    let getalbum = `Select * FROM album WHERE album_id = ${rowid}`;
+    // let getalbum = `Select * FROM album WHERE album_id = ${rowid}`;
+
+  let getalbum = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name
+  FROM album
+  INNER JOIN genre
+  ON album.genre_id = genre.genre_id
+  WHERE
+  album.album_id = ${rowid};`
+
+    
     db.query(getalbum, (err, data) => {
       if (err) throw err;
       res.json({data});
@@ -63,12 +110,10 @@ app.post('/albumoutput/add', (req, res)=> {
   let year_of_release = req.body.albumyear
   let genre = req.body.genretypes;
 
-  if (genre === "Nu Metal") {
-    genre = 1;
-  }
+
 
   let addalbum = `INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) 
-                  VALUES('${album}', '${artist}', '${album_desc}', '${year_of_release}', '${genre}'); `;
+                  VALUES('${album}', '${artist}', '${album_desc}', ${year_of_release}, ${genre}); `;
 
   db.query(addalbum, (err, data) => {  
       if(err) {
@@ -80,7 +125,7 @@ app.post('/albumoutput/add', (req, res)=> {
           let respObj ={
               id: data.insertId,
               title: album,
-              message: `${album} album added to menu`,
+              message: `${album} album added to Stack of Wax`,
           };
           res.json({respObj});
       }
@@ -122,6 +167,8 @@ db.connect((err) => {
 
 
 
+
+//Log in 
 app.get("/", (req, res) => {
   res.render("login");
 });
@@ -246,7 +293,3 @@ app.listen(process.env.PORT || 3000, () => {
 
 
 
-
-// app.listen(3000, () => {
-//   console.log("Server on port 3000");
-// });

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	
+	<!-- links to load UI framework CSS-->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"/>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css" />
+	<link rel="stylesheet" href="../myui.css">
+</head>
+
+<body class = "dark">
+<!-- design your site here -->
+<!-- everything goes into this div -->
+
+<div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
+    <a href="index.html" class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+            <a href="/" class="pure-menu-link">Sign-In</a>
+       
+        </li>
+        <li class="pure-menu-item">
+            <a href="#" class="pure-menu-link">Search</a>
+		</div>
+	
+	<!-- <li class="-icon">
+		<a href="javascript:void(0);" onclick="topnav('myTopnav2')">&#9776;</a> -->
+	</li>
+</ul>
+
+
+
+<div class="pure-g centre">
+    
+      
+        <h2><%= titletext %></h2>
+        
+        <h3>Select an Album</h3>
+
+
+        <% albumdata['data'].forEach( (album)=>{   %>
+            <div>
+                <header><%= album.album_title %></header>
+                <a class="button" href="/inspect?item=<%= album.album_id %>">Inspect</a>
+            </div>
+        <% }); %>
+
+    
+    
+      
+    
+        </div>
+      </div>
+    </body>
+    </html>
+   
+
+	</div>
+
+
+
+    
+       
+
+
+</body>
+<!-- links to load UI framework javascript -->
+<script src="https://rawgit.com/outboxcraft/beauter/master/beauter.min.js"></script>
+</html>
