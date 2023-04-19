@@ -29,27 +29,35 @@
 	</li> -->
 </ul>
 
-<div class="pure-g register">
-	<h3>Welcome back to Stacks of Wax</h3>
-	<p>Sign in if you would.</p>
-	<div class="pure-u-1 pure-u-md-1-2-email">
-        <form action="/" method="POST">
-        <p>
-            username: <input name = "emailString">
+<div class="pure-g centre">
+    <form action="/admin/register" method="POST">
+        <header>
+            <h1>Sign up with us if you would.</h1>
+        </header>
+        <p>username:
+        <input name="username">
         </p>
-
-        <p>
-            password: <input name = "passwordString">
+        <p>password:
+        <input name="password">
         </p>
+        <p>First Name:
+        <input name="firstname">
+        </p>
+        <p>Last Name:
+        <input name="lastname">
+        </input>
 
-        <input type = "submit" value = "Log-in">
-    </form>
-    </div>
+        <p> User Type: </p>
+        <select name = "status">
+            
+            <option name="usertype">Member</option>
+            <option name="usertype">Admin</option>
 
-    <div>
-    <p>Or you could register instead</p>
-    <a href="/register" class = "button" >Register</a>
-    </div>
+      
+        </select>
+        <input type="submit" value="Register">
+
+        </form>
 
 	 
 </div>

@@ -218,6 +218,26 @@ app.post("/", (req, res) => {
 });
 
 
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+app.post('/admin/register', (req, res) => {
+  let username = req.body.username;
+  let password = req.body.password;
+  let firstname = req.body.firstname;
+  let lastname = req.body.lastname;
+  let usertype = req.body.status;
+
+
+  
+  let albumsql = "INSERT INTO auth_user (username, password, first_name, last_name, status) VALUES( ? , ? , ? , ? , ?)";
+  db.query(albumsql,[username, password, firstname, lastname, usertype],(err, rows)=>{
+    if(err) throw err;
+    res.redirect('/');
+});
+});
+
 app.get('/home', (req,res) => {
   let sessionobj = req.session;
   if(sessionobj.authen){
@@ -234,79 +254,9 @@ app.get('/home', (req,res) => {
   } 
 });
 
-app.get('/admin/add', (req, res) => {
-  res.render("addrecord");
-});
-
-app.post('/admin/add', (req, res) => {
-    let albumname = req.body.albumField;
-    let artistname = req.body.artistField;
-    let albumdesc = req.body.descField;
-    // let albumdesc = "Troubleshooting as we speak";
-    let releaseyear = req.body.albumyear;
-    let genre = req.body.genretypes;
-
-    if (genre === 'Nu Metal') {
-      genre = 1;
-    } else if (genre === 'Rock n Roll') {
-      genre = 2;
-    }
-    
-    let albumsql = "INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) VALUES( ? , ? , ? , ? , ?)";
-    db.query(albumsql,[albumname, artistname, albumdesc, releaseyear, genre],(err, rows)=>{
-      if(err) throw err;
-      res.send(`You have added: <p>${albumname}</p> <p>${artistname}</p> <p>${albumdesc}</p> <p>${releaseyear}</p> <p>${genre}</p>` );
-  });
-});
 
 
-app.get('/album', (req, res) => {
-    let readsql = "SELECT * FROM album"
-    db.query(readsql, (err, rows) => {
-      if (err) throw err;
-      // let stringdata = JSON.stringify(rows);
-      let rowdata = rows;
-      // res.send(`<h2>My Albums</h2><code> ${stringdata} </code>`);
-      res.render('album', {title: 'List of albums', rowdata});
-    });
-});
 
-app.get('/albuminfo', (req, res) => {
-  let readsql = "SELECT * FROM album"
-  db.query(readsql, (err, rows) => {
-    if (err) throw err;
-    // let stringdata = JSON.stringify(rows);
-    let rowdata = rows;
-    // res.send(`<h2>My Albums</h2><code> ${stringdata} </code>`);
-    res.render('albuminfo', {title: 'List of albums', rowdata});
-  });
-});
-
-app.get("/row",(req,res) => {
-    let albumid = req.query.albumid;
-
-    let readsql = "SELECT * FROM album WHERE album_id = ?";
-    
-    db.query(readsql, [albumid], (err, rows)=>{
-        if(err) throw err;
-
-        if (rows[0]['genre_id'] === 1) {
-          rows[0]['genre_id'] = "Nu Metal"
-        }
-        let album = {
-          album_title: rows[0]['album_title'],
-          artist: rows[0]['artist'],
-          album_desc: rows[0]['album_desc'],
-          year_of_release: rows[0]['year_of_release'],
-          genre: rows[0]['genre_id'],
-          
-          
-        };
-        
-
-        res.render('albuminfo', {album});
-    });
-});
 
 
 
