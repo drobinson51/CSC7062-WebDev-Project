@@ -58,7 +58,7 @@ app.get('/addalbum', (req, res)=> {
 });
 
 
-app.get('/inspect', (req, res)=> {  
+app.get('/display', (req, res)=> {  
   let ep = `http://localhost:4000/albumoutput/ `;
 
   axios.get(ep).then((response) => {
@@ -67,6 +67,30 @@ app.get('/inspect', (req, res)=> {
   });
 
   });
+
+  
+
+//row id of API output
+
+app.get('/inspect', (req, res)=> { 
+
+    let item_id = req.query.item;
+    let endp = `http://localhost:4000/albumoutput/${item_id}`;
+
+      
+      axios.get(endp).then((response)=>{
+          // res.send(response.data);
+
+          let albumdata = response.data;
+
+          res.render('albuminfo', {titletext: 'Albums', albumdata});
+    
+  
+  });
+
+});
+  
+
 
 app.get('/albumoutput', (req, res)=> { 
   let allalbums = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name

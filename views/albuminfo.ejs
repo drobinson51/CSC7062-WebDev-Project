@@ -40,6 +40,8 @@
 
 
 <div class="pure-u-1 pure-u-md-1-2-text"> 
+    
+    <% albumdata['data'].forEach( (album)=>{   %>
     <header>
         <% album.album_title  %>
       </header>
@@ -57,10 +59,11 @@
         </p>
 
         <p>
-            This is a <%= album.genre %> album
+            This is a <%= album.name %> album
          </p>
         
       </main>
+      <% }); %>
 	</div>
 </div>
 

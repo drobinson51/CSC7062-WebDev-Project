@@ -47,7 +47,7 @@
         <% albumdata['data'].forEach( (album)=>{   %>
             <div>
                 <header><%= album.album_title %></header>
-                <a class="button" href="/buy?item=<%= album.album_id %>">Inspect</a>
+                <a class="button" href="/inspect?item=<%= album.album_id %>">Inspect</a>
             </div>
         <% }); %>
 
