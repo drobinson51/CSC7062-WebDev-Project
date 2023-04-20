@@ -83,7 +83,7 @@ app.get('/inspect', (req, res)=> {
 
           let albumdata = response.data;
 
-          res.render('albuminfo', {titletext: 'Albums', albumdata});
+          res.render('albuminfo', {albumdata});
     
   
   });
@@ -155,6 +155,61 @@ app.get('/albumoutput/:rowid', (req, res)=> {
 
 });
 
+
+
+
+//Posting stuff to albums
+app.get('/addanalbum', (req, res)=> { 
+    res.render('addrecord', {message: 'Make your addition to the Stack of Wax'});
+});
+
+
+app.post('/addanalbum', (req, res)=> {  
+
+  let album = req.body.albumField;
+  let artist = req.body.artistField;
+  let albumyear = req.body.albumyear;
+  let desc = req.body.descField;
+  let genre = req.body.genretypes;
+
+
+  const insertData = { 
+    albumField: album,
+    artistField: artist,
+    albumyear: albumyear,
+    descField: desc, 
+    genretypes: genre,
+
+};
+
+
+const config = {
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+ }
+}
+
+  let endpoint="http://localhost:4000/albumoutput/add";
+
+
+  axios.post(endpoint, insertData, config).then((response) => {
+       
+    let insertedid = response.data.respObj.id; 
+    let resmessage = response.data.respObj.message;
+
+    // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+
+    // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
+      res.render('addrecord', { message: `${resmessage}. Would you like to add another?` });
+
+   }).catch((err)=>{
+  console.log(err.message);
+});
+
+});
+
+
+
 app.post('/albumoutput/add', (req, res)=> { 
 
   let album = req.body.albumField;
@@ -165,8 +220,8 @@ app.post('/albumoutput/add', (req, res)=> {
 
 
 
-  let addalbum = `INSERT INTO album (album_title, artist, album_desc, year_of_release, genre_id) 
-                  VALUES('${album}', '${artist}', '${album_desc}', ${year_of_release}, ${genre}); `;
+  let addalbum = `INSERT INTO album (album_title, artist, year_of_release, album_desc, genre_id)  
+                  VALUES('${album}', '${artist}', ${year_of_release}, '${album_desc}', ${genre} ); `;
 
   db.query(addalbum, (err, data) => {  
       if(err) {

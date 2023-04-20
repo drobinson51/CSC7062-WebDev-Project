@@ -33,10 +33,9 @@
 
 
 <div class="pure-g centre">
-    <form action="/admin/add" method="POST">
+    <form action="/addanalbum" method="POST">
         <header>
-            <h1>Make your addition.</h1>
-            <p>Add an album to the Stack of Wax</p>
+            <h1><%= message %></h1>
         </header>
         <p>Album Name:
         <input name="albumField">
@@ -52,15 +51,18 @@
         </textarea>
         <select name = "genretypes">
             <p> Select genre:
-            <option name="genre">Nu Metal</option>
-            <option name="genre">Rock n Roll</option>
+            <option value="1">Nu Metal</option>
+            <option value="2">Rock n Roll</option>
 
         </p>
         </select>
         <input type="submit" value="Add Album">
 
         </form>
-   
+        
+        <footer>
+        
+        </footer>
 
 	</div>
 
