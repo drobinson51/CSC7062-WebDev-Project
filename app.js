@@ -95,15 +95,6 @@ app.get('/inspect', (req, res)=> {
 app.get('/albumoutput', (req, res)=> { 
   let allalbums = `SELECT * From album;`
 
-//   let allalbums = `SELECT album.album_id, album.album_title, album.artist, album.album_desc, album.year_of_release, song.title, genre.name
-//   FROM album
-//   INNER JOIN genre
-//   ON album.genre_id = genre.genre_id
-//   INNER JOIN album_tracklist
-//   ON album.album_id = album_tracklist.album_id
-//  INNER JOIN song
-//   ON album_tracklist.song_id = song.song_id;`
-
 
 
   db.query(allalbums, (err, data) => {
@@ -116,25 +107,6 @@ app.get('/albumoutput', (req, res)=> {
 
 app.get('/albumoutput/:rowid', (req, res)=> { 
     let rowid = req.params.rowid;
-    // let getalbum = `Select * FROM album WHERE album_id = ${rowid}`;
-
-  // let getalbum = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name
-  // FROM album
-  // INNER JOIN genre
-  // ON album.genre_id = genre.genre_id
-  // WHERE
-  // album.album_id = ${rowid};`
-
-//  let getalbum = `SELECT album.album_title, album.artist, album.album_desc, album.year_of_release, song.title, genre.name
-//   FROM album
-//   INNER JOIN genre
-//   ON album.genre_id = genre.genre_id
-//   INNER JOIN album_tracklist
-//   ON album.album_id = album_tracklist.album_id
-//  INNER JOIN song
-//   ON album_tracklist.song_id = song.song_id
-//   WHERE
-//   album.album_id = ${rowid};`
 
   let getalbum = `SELECT album.album_title, album.artist, album.album_desc, album.year_of_release, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
   FROM album

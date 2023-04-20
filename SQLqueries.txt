@@ -1,0 +1,36 @@
+SQL queries ran by website so far:
+
+API output rowid :
+
+
+SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name
+FROM album
+INNER JOIN genre
+ON album.genre_id = genre.genre_id
+
+Example of big inner join, use as basis of tracklist. 
+SELECT album.album_title, album.artist, album.album_desc, album.year_of_release, song.title, genre.name
+  FROM album
+  INNER JOIN genre
+  ON album.genre_id = genre.genre_id
+  INNER JOIN album_tracklist
+  ON album.album_id = album_tracklist.album_id
+ INNER JOIN song
+  ON album_tracklist.song_id = song.song_id;
+
+
+Selecting reviews to be displayed for regular album
+SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, review.review_content
+FROM album
+INNER JOIN album_review
+ON album_review.album_id = album.album_id
+INNER JOIN review
+ON album_review.review_id = review.review_id
+
+//Doing it again but this time for user albums
+SELECT user_album.user_album_id, user_album.custom_album_name, user_album.album_desc, review.review_content
+FROM user_album
+INNER JOIN useralbum_review
+ON user_album.user_album_id = user_album.user_album_id
+INNER JOIN review
+ON useralbum_review.review_id = review.review_id
