@@ -123,6 +123,70 @@ app.get("/albumoutput/:rowid", (req, res) => {
   });
 });
 
+//displays web app to search for albums
+app.get("/searchalbums", (req, res) => {
+
+  res.render("searchalbums", { titletext: "Albums",});
+
+});
+//posts info submitted from webapp
+app.post("/searchalbums", (req, res) => {
+  let artist = req.body.artistField;
+  let albumyear = req.body.albumyear;
+  let genre = req.body.genretypes;
+
+  const insertData = {
+    artistField: artist,
+    albumyear: albumyear,
+    genretypes: genre,
+  };
+
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  };
+
+  let endpoint = "http://localhost:4000/albumsearch";
+
+  axios
+    .post(endpoint, insertData, config)
+    .then((response) => {
+
+      let albumdata = response.data;
+      console.log(albumdata);
+      res.render("albuminfo", {albumdata});
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+
+app.post("/albumsearch", (req, res) => {
+  let artist = req.body.artistField;
+  let albumyear = req.body.albumyear;
+  let genre = req.body.genretypes;
+
+  console.log(artist);
+  console.log(albumyear);
+  console.log(genre);
+
+  let albumsearch = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name 
+                  FROM album 
+                  INNER JOIN genre 
+                  ON album.genre_id = genre.genre_id 
+                  WHERE album.artist = "${artist}" AND genre.genre_id = "${genre}" AND album.year_of_release = ${albumyear}`;
+
+  db.query(albumsearch, (err, result) => {
+    if (err) throw err;
+
+    // Pass the retrieved data to the res.json() method
+    res.json({ data: result });
+  });
+});
+
+
 //Displaying interface to add an album album
 app.get("/addaalbum", (req, res) => {
   res.render("addrecord", {
@@ -199,6 +263,360 @@ app.post("/albumoutput/add", (req, res) => {
     }
   });
 });
+
+//Posting song to albums
+app.get("/addsong", (req, res) => {
+  res.render("addasong", { message: "Add your song to the Stack of Wax" });
+});
+
+//Posts song through axios on the web app
+app.post("/addsong", (req, res) => {
+  let title = req.body.titleField;
+  let time = req.body.timeField;
+
+  const insertData = {
+    titleField: title,
+    timeField: time,
+  };
+
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  };
+
+  let endpoint = "http://localhost:4000/songoutput/add";
+
+  axios
+    .post(endpoint, insertData, config)
+    .then((response) => {
+      let insertedid = response.data.respObj.id;
+      let resmessage = response.data.respObj.message;
+
+      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+
+      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
+      res.render("addasong", {
+        message: `${resmessage}. Would you like to add another?`,
+      });
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+//adding a song to Stack of Wax, the API route
+app.post("/songoutput/add", (req, res) => {
+  let title = req.body.titleField;
+  let time = req.body.timeField;
+
+  let addsong = `INSERT INTO song (title, time)  
+                  VALUES('${title}', '${time}'); `;
+
+  db.query(addsong, (err, data) => {
+    if (err) {
+      res.json({ err });
+      throw err;
+    }
+
+    if (data) {
+      let respObj = {
+        id: data.insertId,
+        message: `${title} added to Stack of Wax`,
+      };
+      res.json({ respObj });
+    }
+  });
+});
+
+//gets song amd albums, uses for each loop to display them in select
+app.get("/addsongtoalbum", (req, res) => {
+  let ep = `http://localhost:4000/songstoalbums/ `;
+
+  axios.get(ep).then((response) => {
+    let albumandsonginfo = response.data;
+    res.render("addsongtoalbum", { message: "Albums", albumandsonginfo });
+  });
+});
+
+//web page to link song to album.
+app.post("/addsongtoalbum", (req, res) => {
+  let albumValue = req.body.albumValue;
+  let songValue = req.body.songValue;
+
+  console.log(req.body.albumValue);
+  console.log(req.body.songValue);
+
+  const insertData = {
+    albumValue: albumValue,
+    songValue: songValue,
+  };
+
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  };
+
+  let endpoint = "http://localhost:4000/albumtracklist/add";
+
+  axios
+    .post(endpoint, insertData, config)
+    .then((response) => {
+      let insertedid = response.data.respObj.id;
+      let resmessage = response.data.respObj.message;
+
+      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+
+      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
+      // res.redirect('addsongtoalbum', {message: 'Your song and album have been joined in the Stack of Wax, would you like to add another?', albumandsonginfo})
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+
+  let ep = `http://localhost:4000/songstoalbums/ `;
+
+  axios.get(ep).then((response) => {
+    let albumandsonginfo = response.data;
+    res.redirect("addsongtoalbum");
+  });
+});
+
+//sql query run to get the songs and albums, nothing shared between rows, ergo 1=1 to ensure join
+app.get("/songstoalbums", (req, res) => {
+  // let songtoalbums = `SELECT album.album_id, album.album_title, song.song_id, song.title
+  // FROM album
+  // INNER JOIN song
+  // WHERE 1 = 1;`
+
+  let songtoalbums = ` SELECT album.album_id, album.album_title, NULL AS song_id, NULL AS title
+  FROM album
+  UNION
+  SELECT NULL AS album_id, NULL AS album_title, song.song_id, song.title
+  FROM song;`;
+
+  db.query(songtoalbums, (err, data) => {
+    if (err) throw err;
+    res.json({ data });
+  });
+});
+
+//API route to link album and song together. Redirects back to page to add another.
+app.post("/albumtracklist/add", (req, res) => {
+  let album = req.body.albumValue;
+  let song = req.body.songValue;
+
+  let addtracklist = `INSERT INTO album_tracklist (album_id, song_id)  
+                        VALUES(${album}, ${song}); `;
+
+  db.query(addtracklist, (err, data) => {
+    if (err) {
+      res.json({ err });
+      throw err;
+    }
+
+    if (data) {
+      let respObj = {
+        id: data.insertId,
+        message: `Your song and album have have been joined in the Stack of Wax`,
+      };
+      res.json({ respObj });
+    }
+  });
+});
+
+//web page to link song to album.
+app.post("/addsongtoalbum", (req, res) => {
+  let albumValue = req.body.albumValue;
+  let songValue = req.body.songValue;
+
+  console.log(req.body.albumValue);
+  console.log(req.body.songValue);
+
+  const insertData = {
+    albumValue: albumValue,
+    songValue: songValue,
+  };
+
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  };
+
+  let endpoint = "http://localhost:4000/albumtracklist/add";
+
+  axios
+    .post(endpoint, insertData, config)
+    .then((response) => {
+      let insertedid = response.data.respObj.id;
+      let resmessage = response.data.respObj.message;
+
+      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+
+      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
+      // res.redirect('addsongtoalbum', {message: 'Your song and album have been joined in the Stack of Wax, would you like to add another?', albumandsonginfo})
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+
+  let ep = `http://localhost:4000/songstoalbums/ `;
+
+  axios.get(ep).then((response) => {
+    let albumandsonginfo = response.data;
+    res.redirect("addsongtoalbum");
+  });
+});
+
+//API route to link album and song together. Redirects back to page to add another.
+app.post("/albumtracklist/add", (req, res) => {
+  let album = req.body.albumValue;
+  let song = req.body.songValue;
+
+  let addtracklist = `INSERT INTO album_tracklist (album_id, song_id)  
+                        VALUES(${album}, ${song}); `;
+
+  db.query(addtracklist, (err, data) => {
+    if (err) {
+      res.json({ err });
+      throw err;
+    }
+
+    if (data) {
+      let respObj = {
+        id: data.insertId,
+        message: `Your song and album have have been joined in the Stack of Wax`,
+      };
+      res.json({ respObj });
+    }
+  });
+});
+
+
+//web page tos show user album and what they can add
+// app.get("/addsongtouseralbum", (req, res) => {
+//   let authen = req.session.userId; // get the user ID from the session
+//   let ep = `http://localhost:4000/songstouseralbums/${authen}`; // include the user ID in the API endpoint
+//   axios.get(ep).then((response) => {
+//     let albumandsonginfo = response.data;
+//     console.log(albumandsonginfo) 
+//     res.render("addsongtouseralbum", { message: "User Albums", albumandsonginfo, authen }); // include the authen value in the object passed to res.render()
+//   });
+// });
+
+
+app.get('/addsongtouseralbum', (req, res) => {
+  userid = req.session.authen
+  const ep = `http://localhost:4000/songstouseralbums/${userid}`;
+
+  axios.get(ep).then((response) => {
+    const albumandsonginfo = response.data;
+    res.render('addsongtouseralbum', { message: 'User Albums', albumandsonginfo });
+  });
+});
+
+app.post("/addsongtouseralbum", (req, res) => {
+  let albumValue = req.body.albumValue;
+  let songValue = req.body.songValue;
+
+  console.log(req.body.albumValue);
+  console.log(req.body.songValue);
+
+  const insertData = {
+    albumValue: albumValue,
+    songValue: songValue,
+  };
+
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  };
+
+  let endpoint = "http://localhost:4000/useralbumtracklist/add";
+
+  axios
+    .post(endpoint, insertData, config)
+    .then((response) => {
+      let insertedid = response.data.respObj.id;
+      let resmessage = response.data.respObj.message;
+
+      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+
+      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
+      // res.redirect('addsongtoalbum', {message: 'Your song and album have been joined in the Stack of Wax, would you like to add another?', albumandsonginfo})
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+
+  let ep = `http://localhost:4000/songstoalbums/ `;
+
+  axios.get(ep).then((response) => {
+    let albumandsonginfo = response.data;
+    res.redirect("addsongtouseralbum");
+  });
+});
+
+//sql query run to get the songs and albums, nothing shared between rows, ergo 1=1 to ensure join
+app.get("/songstouseralbums", (req, res) => {
+
+  let songtouseralbums = `SELECT user_album.user_album_id, user_album.custom_album_name, NULL AS song_id, NULL AS title
+  FROM user_album
+  UNION
+  SELECT NULL AS album_id, NULL AS album_title, song.song_id, song.title
+  FROM song;`
+
+  db.query(songtouseralbums, (err, data) => {
+    if (err) throw err;
+    res.json({ data });
+  });
+});
+
+//users the user id, from the authen, as the query
+app.get('/songstouseralbums/:userId', (req, res) => {
+const userId = req.params.userId;
+
+let songtouseralbums = `SELECT user_album.user_album_id, user_album.custom_album_name, NULL AS song_id, NULL AS title
+FROM user_album
+WHERE user_album.user_id = ?
+UNION
+SELECT NULL AS album_id, NULL AS album_title, song.song_id, song.title
+FROM song;`
+
+db.query(songtouseralbums, [userId], (err, data) => {
+  if (err) throw err;
+  res.json({ data });
+});
+});
+
+//API for userablum tracklist being added to
+app.post("/useralbumtracklist/add", (req, res) => {
+  let album = req.body.albumValue;
+  let song = req.body.songValue;
+
+  let addtracklist = `INSERT INTO user_album_tracklist (user_album_id, song_id)  
+                        VALUES(${album}, ${song}); `;
+
+  db.query(addtracklist, (err, data) => {
+    if (err) {
+      res.json({ err });
+      throw err;
+    }
+
+    if (data) {
+      let respObj = {
+        id: data.insertId,
+        message: `Your song and album have have been joined in the Stack of Wax`,
+      };
+      res.json({ respObj });
+    }
+  });
+});
+
+
 
 
 //displaying user albums
@@ -365,21 +783,50 @@ app.post("/useralbumoutput/add", (req, res) => {
 });
 
 
+//renders web app to add review
+app.get("/useralbumreview", (req, res) => {
+  //protection
+  let sessionobj = req.session;
 
-//Posting song to albums
-app.get("/addsong", (req, res) => {
-  res.render("addasong", { message: "Add your song to the Stack of Wax" });
+  if (sessionobj.authen) {
+    let userId = sessionobj.authen;
+    let user = "SELECT * FROM auth_user WHERE user_id = ?";
+
+    db.query(user, [userId], (err, row) => {
+      let firstrow = row[0];
+
+      let ep = `http://localhost:4000/addtouseralbumreviewlist/`;
+
+      axios
+        .get(ep)
+        .then((response) => {
+          let albumavailable = response.data;
+          res.render("postuseralbumreview", {
+            message: "User Albums",
+            albumavailable,
+            user: firstrow,
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(500).send("Internal server error");
+        });
+    });
+  } else {
+    res.redirect("/");
+  }
 });
 
-//Posts song through axios on the web app
-app.post("/addsong", (req, res) => {
-  let title = req.body.titleField;
-  let time = req.body.timeField;
+//web app for posting review
+app.post("/useralbumreview", (req, res) => {
+  let reviewcontent = req.body.descField;
+  //stores your authen as a userID that is then fed to the API, allowing for it to be used
+  let userid = req.body.userid;
+  let album = req.body.albumValue;
 
-  const insertData = {
-    titleField: title,
-    timeField: time,
-  };
+  console.log(req.body.descField);
+  console.log(req.body.userid);
+  console.log(req.body.albumValue);
 
   const config = {
     headers: {
@@ -387,72 +834,67 @@ app.post("/addsong", (req, res) => {
     },
   };
 
-  let endpoint = "http://localhost:4000/songoutput/add";
+  let endpoint = "http://localhost:4000/addinguseralbumreview/";
+
+  let insertData = `descField=${reviewcontent}&userid=${userid}&albumValue=${album}`;
 
   axios
     .post(endpoint, insertData, config)
     .then((response) => {
-      let insertedid = response.data.respObj.id;
-      let resmessage = response.data.respObj.message;
+      // console.log(response.data);
+      // console.log(response.data.respObj.message);
+      // let insertedid = response.data.data.insertId;
+      // let resmessage = response.data.respObj.message;
 
       // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
-
-      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
-      res.render("addasong", {
-        message: `${resmessage}. Would you like to add another?`,
-      });
+      res.redirect("/review");
     })
     .catch((err) => {
       console.log(err.message);
     });
 });
 
-//adding a song to Stack of Wax, the API route
-app.post("/songoutput/add", (req, res) => {
-  let title = req.body.titleField;
-  let time = req.body.timeField;
 
-  let addsong = `INSERT INTO song (title, time)  
-                  VALUES('${title}', '${time}'); `;
 
-  db.query(addsong, (err, data) => {
-    if (err) {
-      res.json({ err });
-      throw err;
-    }
+//API of user album review post
 
-    if (data) {
-      let respObj = {
-        id: data.insertId,
-        message: `${title} added to Stack of Wax`,
-      };
-      res.json({ respObj });
-    }
+app.post("/addinguseralbumreview", (req, res) => {
+  let reviewcontent = req.body.descField;
+  //stores your authen as a userID that is then fed to the API, allowing for it to be used
+  let userid = req.body.userid;
+  let album = req.body.albumValue;
+
+  console.log(reviewcontent, userid, album);
+
+  let user_album_id = album;
+
+  let addreview = `INSERT INTO review (review_content, user_id) VALUES('${reviewcontent}', ${userid})`;
+
+  //query for adding review
+  db.query(addreview, (err, result) => {
+    if (err) throw err;
+
+    // Get the last inserted review id
+    let review_id = result.insertId;
+
+    
+    let addtoUserAlbumTracklist = `INSERT INTO useralbum_review (user_album_id, review_id)  
+    VALUES (${user_album_id}, ${review_id});`;
+
+    //second query to add to the album review
+    db.query(addtoUserAlbumTracklist, (err, result) => {
+      if (err) throw err;
+
+      res.json({ message: "Review added and user album reviewlist updated" });
+    });
   });
 });
 
-//gets song amd albums, uses for each loop to display them in select
-app.get("/addsongtoalbum", (req, res) => {
-  let ep = `http://localhost:4000/songstoalbums/ `;
 
-  axios.get(ep).then((response) => {
-    let albumandsonginfo = response.data;
-    res.render("addsongtoalbum", { message: "Albums", albumandsonginfo });
-  });
-});
 
-//sql query run to get the songs and albums, nothing shared between rows, ergo 1=1 to ensure join
-app.get("/songstoalbums", (req, res) => {
-  // let songtoalbums = `SELECT album.album_id, album.album_title, song.song_id, song.title
-  // FROM album
-  // INNER JOIN song
-  // WHERE 1 = 1;`
-
-  let songtoalbums = ` SELECT album.album_id, album.album_title, NULL AS song_id, NULL AS title
-  FROM album
-  UNION
-  SELECT NULL AS album_id, NULL AS album_title, song.song_id, song.title
-  FROM song;`;
+//displaying review page and sql query to get all user albums, which are all available to review
+app.get("/addtouseralbumreviewlist", (req, res) => {
+  let songtoalbums = ` SELECT * FROM user_album;`;
 
   db.query(songtoalbums, (err, data) => {
     if (err) throw err;
@@ -460,116 +902,7 @@ app.get("/songstoalbums", (req, res) => {
   });
 });
 
-//web page to link song to album.
-app.post("/addsongtoalbum", (req, res) => {
-  let albumValue = req.body.albumValue;
-  let songValue = req.body.songValue;
 
-  console.log(req.body.albumValue);
-  console.log(req.body.songValue);
-
-  const insertData = {
-    albumValue: albumValue,
-    songValue: songValue,
-  };
-
-  const config = {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-  };
-
-  let endpoint = "http://localhost:4000/albumtracklist/add";
-
-  axios
-    .post(endpoint, insertData, config)
-    .then((response) => {
-      let insertedid = response.data.respObj.id;
-      let resmessage = response.data.respObj.message;
-
-      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
-
-      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
-      // res.redirect('addsongtoalbum', {message: 'Your song and album have been joined in the Stack of Wax, would you like to add another?', albumandsonginfo})
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
-
-  let ep = `http://localhost:4000/songstoalbums/ `;
-
-  axios.get(ep).then((response) => {
-    let albumandsonginfo = response.data;
-    res.redirect("addsongtoalbum");
-  });
-});
-
-//API route to link album and song together. Redirects back to page to add another.
-app.post("/albumtracklist/add", (req, res) => {
-  let album = req.body.albumValue;
-  let song = req.body.songValue;
-
-  let addtracklist = `INSERT INTO album_tracklist (album_id, song_id)  
-                        VALUES(${album}, ${song}); `;
-
-  db.query(addtracklist, (err, data) => {
-    if (err) {
-      res.json({ err });
-      throw err;
-    }
-
-    if (data) {
-      let respObj = {
-        id: data.insertId,
-        message: `Your song and album have have been joined in the Stack of Wax`,
-      };
-      res.json({ respObj });
-    }
-  });
-});
-
-app.post("/addsongtoalbum", (req, res) => {
-  let albumValue = req.body.albumValue;
-  let songValue = req.body.songValue;
-
-  console.log(req.body.albumValue);
-  console.log(req.body.songValue);
-
-  const insertData = {
-    albumValue: albumValue,
-    songValue: songValue,
-  };
-
-  const config = {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-  };
-
-  let endpoint = "http://localhost:4000/albumtracklist/add";
-
-  axios
-    .post(endpoint, insertData, config)
-    .then((response) => {
-      let insertedid = response.data.respObj.id;
-      let resmessage = response.data.respObj.message;
-
-      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
-
-      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
-      // res.redirect('addsongtoalbum', {message: 'Your song and album have been joined in the Stack of Wax, would you like to add another?', albumandsonginfo})
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
-
-  let ep = `http://localhost:4000/songstoalbums/ `;
-
-  axios.get(ep).then((response) => {
-    let albumandsonginfo = response.data;
-    res.redirect("addsongtoalbum");
-  });
-});
 
 //renders interface to add review
 app.get("/review", (req, res) => {
