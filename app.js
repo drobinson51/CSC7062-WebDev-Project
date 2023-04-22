@@ -506,7 +506,7 @@ app.post("/albumtracklist/add", (req, res) => {
 //   });
 // });
 
-
+// web app of adding song to album
 app.get('/addsongtouseralbum', (req, res) => {
   userid = req.session.authen
   const ep = `http://localhost:4000/songstouseralbums/${userid}`;
@@ -516,7 +516,7 @@ app.get('/addsongtouseralbum', (req, res) => {
     res.render('addsongtouseralbum', { message: 'User Albums', albumandsonginfo });
   });
 });
-
+// posting of adding song to album 
 app.post("/addsongtouseralbum", (req, res) => {
   let albumValue = req.body.albumValue;
   let songValue = req.body.songValue;
@@ -616,6 +616,66 @@ app.post("/useralbumtracklist/add", (req, res) => {
   });
 });
 
+app.get("/searchuseralbums", (req, res) => {
+
+  res.render("searchuseralbums", { titletext: "Albums",});
+
+});
+//posts info submitted from webapp
+app.post("/searchuseralbums", (req, res) => {
+ 
+  let genre = req.body.genretypes;
+
+  const insertData = {
+    genretypes: genre,
+  };
+
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  };
+
+  let endpoint = "http://localhost:4000/useralbumsearch";
+
+  axios
+    .post(endpoint, insertData, config)
+    .then((response) => {
+
+      let albumdata = response.data;
+      console.log(albumdata);
+      res.render("useralbumslist", { titletext: "Albums", albumdata });
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+
+app.post("/useralbumsearch", (req, res) => {
+  let artist = req.body.artistField;
+  let albumyear = req.body.albumyear;
+  let genre = req.body.genretypes;
+
+  console.log(artist);
+  console.log(albumyear);
+  console.log(genre);
+
+  let albumsearch = `SELECT user_album.user_album_id, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name
+  FROM user_album 
+  INNER JOIN genre 
+  ON user_album.genre_id = genre.genre_id 
+  INNER JOIN auth_user 
+  ON user_album.user_id = auth_user.user_id 
+  WHERE genre.genre_id = ${genre}`;
+
+  db.query(albumsearch, (err, result) => {
+    if (err) throw err;
+
+    // Pass the retrieved data to the res.json() method
+    res.json({ data: result });
+  });
+});
 
 
 
