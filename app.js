@@ -260,29 +260,52 @@ app.get("/useralbumoutput/:rowid", (req, res) => {
 });
 
 
-
-
-
 //Displaying interface to add an album album
 app.get("/addauseralbum", (req, res) => {
-  res.render("adduserrecord", {
-    message: "Make your addition to the Stack of Wax",
-  });
+  //protection
+  let sessionobj = req.session;
+
+  if (sessionobj.authen) {
+    let userId = sessionobj.authen;
+    let user = "SELECT * FROM auth_user WHERE user_id = ?";
+
+    db.query(user, [userId], (err, row) => {
+      let firstrow = row[0];
+
+      let ep = `http://localhost:4000/useralbumoutput/`;
+
+      axios
+        .get(ep)
+        .then((response) => {
+          let albumavailable = response.data;
+          res.render("adduserrecord", {
+            message: "Albums",
+            albumavailable,
+            user: firstrow,
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(500).send("Internal server error");
+        });
+    });
+  } else {
+    res.redirect("/");
+  }
 });
 
 //using axios to post al
 app.post("/addauseralbum", (req, res) => {
-  let album = req.body.albumField;
-  let artist = req.body.artistField;
-  let albumyear = req.body.albumyear;
-  let desc = req.body.descField;
+
+  let customName = req.body.albumField;
+  let user = req.body.userid;
+  let album_desc = req.body.descField;
   let genre = req.body.genretypes;
 
   const insertData = {
-    albumField: album,
-    artistField: artist,
-    albumyear: albumyear,
-    descField: desc,
+    albumField: customName,
+    userid: user,
+    descField: album_desc,
     genretypes: genre,
   };
 
@@ -292,7 +315,7 @@ app.post("/addauseralbum", (req, res) => {
     },
   };
 
-  let endpoint = "http://localhost:4000/albumoutput/add";
+  let endpoint = "http://localhost:4000/useralbumoutput/add";
 
   axios
     .post(endpoint, insertData, config)
@@ -312,19 +335,12 @@ app.post("/addauseralbum", (req, res) => {
     });
 });
 
-// app.get("/addauseralbum", (req, res) => {
-//   let ep = "http://localhost:4000/useralbumoutput/add";
 
-//   axios.get(ep).then((response) => {
-//     let albumdata = response.data;
-//     res.render("addauseralbum", { titletext: "Albums", albumdata });
-//   });
-// });
 
 //API for user album adding
 app.post("/useralbumoutput/add", (req, res) => {
   let customName = req.body.albumField;
-  let user = req.body.userID;
+  let user = req.body.userid;
   let album_desc = req.body.descField;
   let genre = req.body.genretypes;
 
@@ -340,13 +356,15 @@ app.post("/useralbumoutput/add", (req, res) => {
     if (data) {
       let respObj = {
         id: data.insertId,
-        title: album,
-        message: `${album} album added to Stack of Wax`,
+        title: customName,
+        message: `${customName} album added to Stack of Wax`,
       };
       res.json({ respObj });
     }
   });
 });
+
+
 
 //Posting song to albums
 app.get("/addsong", (req, res) => {
