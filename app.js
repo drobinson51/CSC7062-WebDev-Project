@@ -883,10 +883,12 @@ app.post("/useralbumreview", (req, res) => {
   //stores your authen as a userID that is then fed to the API, allowing for it to be used
   let userid = req.body.userid;
   let album = req.body.albumValue;
+  let vote = req.body.voteValue;
 
   console.log(req.body.descField);
   console.log(req.body.userid);
   console.log(req.body.albumValue);
+  console.log(req.body.voteValue);
 
   const config = {
     headers: {
@@ -896,7 +898,7 @@ app.post("/useralbumreview", (req, res) => {
 
   let endpoint = "http://localhost:4000/addinguseralbumreview/";
 
-  let insertData = `descField=${reviewcontent}&userid=${userid}&albumValue=${album}`;
+  let insertData = `descField=${reviewcontent}&userid=${userid}&voteValue=${vote}&albumValue=${album}`;
 
   axios
     .post(endpoint, insertData, config)
@@ -907,7 +909,7 @@ app.post("/useralbumreview", (req, res) => {
       // let resmessage = response.data.respObj.message;
 
       // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
-      res.redirect("/review");
+      res.redirect("/useralbumreview");
     })
     .catch((err) => {
       console.log(err.message);
@@ -923,12 +925,26 @@ app.post("/addinguseralbumreview", (req, res) => {
   //stores your authen as a userID that is then fed to the API, allowing for it to be used
   let userid = req.body.userid;
   let album = req.body.albumValue;
-
-  console.log(reviewcontent, userid, album);
+  let vote = req.body.voteValue;
+  console.log(reviewcontent, userid, album, vote);
 
   let user_album_id = album;
 
+  voteValue = parseInt(vote);
+
+  console.log(voteValue)
+
   let addreview = `INSERT INTO review (review_content, user_id) VALUES('${reviewcontent}', ${userid})`;
+
+  if (voteValue === 1) {
+    addvote = `UPDATE user_album SET upvote_count = upvote_count + 1 WHERE user_album_id = ${album}`;
+  } else if (voteValue === -1) {
+    addvote = `UPDATE user_album SET upvote_count = upvote_count - 1 WHERE user_album_id = ${album}`;
+  } else {
+    return res.json({ message: "Invalid vote value" });
+  }
+
+
 
   //query for adding review
   db.query(addreview, (err, result) => {
@@ -946,8 +962,21 @@ app.post("/addinguseralbumreview", (req, res) => {
       if (err) throw err;
 
       res.json({ message: "Review added and user album reviewlist updated" });
+
+      db.query(addvote, (err, result) => {
+        if (err) {
+          console.log(err);
+          return res.json({ message: "Failed to add vote" });
+        }
+
+      });
+
+      
     });
   });
+
+
+    
 });
 
 
