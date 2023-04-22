@@ -661,7 +661,7 @@ app.post("/useralbumsearch", (req, res) => {
   console.log(albumyear);
   console.log(genre);
 
-  let albumsearch = `SELECT user_album.user_album_id, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name
+  let albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name
   FROM user_album 
   INNER JOIN genre 
   ON user_album.genre_id = genre.genre_id 
@@ -718,7 +718,7 @@ app.get("/useralbumoutput", (req, res) => {
 app.get("/useralbumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  let getuseralbum = `SELECT user_album.custom_album_name, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
   FROM user_album
   INNER JOIN genre
   ON user_album.genre_id = genre.genre_id
