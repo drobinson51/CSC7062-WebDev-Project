@@ -211,7 +211,7 @@ app.get("/displayuseralbums", (req, res) => {
   });
 });
 
-//row id of API output
+//display of user album row API output
 
 app.get("/inspectuseralbums", (req, res) => {
   let item_id = req.query.item;
@@ -226,6 +226,7 @@ app.get("/inspectuseralbums", (req, res) => {
   });
 });
 
+//default api space of all user albums
 app.get("/useralbumoutput", (req, res) => {
   let allalbums = `SELECT * From user_album;`;
 
@@ -235,6 +236,7 @@ app.get("/useralbumoutput", (req, res) => {
   });
 });
 
+//api to get row id and store it as unique page for that album
 app.get("/useralbumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
@@ -257,14 +259,10 @@ app.get("/useralbumoutput/:rowid", (req, res) => {
   });
 });
 
-// app.get("/addauseralbum", (req, res) => {
-//   let ep = "http://localhost:4000/useralbumoutput/";
 
-//   axios.get(ep).then((response) => {
-//     let albumdata = response.data;
-//     res.render("addauseralbum", { titletext: "Albums", albumdata });
-//   });
-// });
+
+
+
 //Displaying interface to add an album album
 app.get("/addauseralbum", (req, res) => {
   res.render("adduserrecord", {
@@ -312,6 +310,42 @@ app.post("/addauseralbum", (req, res) => {
     .catch((err) => {
       console.log(err.message);
     });
+});
+
+// app.get("/addauseralbum", (req, res) => {
+//   let ep = "http://localhost:4000/useralbumoutput/add";
+
+//   axios.get(ep).then((response) => {
+//     let albumdata = response.data;
+//     res.render("addauseralbum", { titletext: "Albums", albumdata });
+//   });
+// });
+
+//API for user album adding
+app.post("/useralbumoutput/add", (req, res) => {
+  let customName = req.body.albumField;
+  let user = req.body.userID;
+  let album_desc = req.body.descField;
+  let genre = req.body.genretypes;
+
+  let adduseralbum = `INSERT INTO user_album (custom_album_name, album_desc, genre_id, user_id) 
+                  VALUES('${customName}', '${album_desc}', ${genre}, ${user} ); `;
+
+  db.query(adduseralbum, (err, data) => {
+    if (err) {
+      res.json({ err });
+      throw err;
+    }
+
+    if (data) {
+      let respObj = {
+        id: data.insertId,
+        title: album,
+        message: `${album} album added to Stack of Wax`,
+      };
+      res.json({ respObj });
+    }
+  });
 });
 
 //Posting song to albums
