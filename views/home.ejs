@@ -15,14 +15,14 @@
 <!-- everything goes into this div -->
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
-    <a href="index.html" class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
+    <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
             <a href="/" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="#" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search</a>
 		</div>
 	
 	<!-- <li class="-icon">
@@ -38,19 +38,25 @@
 
 
 
-
-<div class="pure-u-1 pure-u-md-1-2-image"> 
+	<style>
+		.user-options {
+			/* To limit the menu width to the content of the menu: */
+			display: inline-block;
+			
+		}
+	</style>
+<div class="pure-menu user-options"> 
 
 	<p>You are logged in as a: <%= userdata.status %> </p>
-	<img class="pure-img" src="StackofWax.jpeg">
+	<!-- <img class="pure-img" src="StackofWax.jpeg"> -->
 
+	
 	<a href="/addauseralbum" class="pure-menu-link">Create a personal album</a>
 	<a href="/addsongtouseralbum" class="pure-menu-link">Manage your albums</a>
 	<a href="/searchalbums" class="pure-menu-link">Search through the Stack of Wax for official albums</a>
 	<a href="/searchuseralbums" class="pure-menu-link">Search through the Stack of Wax for community collections</a>
 	<a href="/review" class="pure-menu-link">Leave a review on an official album</a>
-	<a href="/useralbumreview" class="pure-menu-link">Search through the Stack of Wax for community collections</a>
-</div>
+	<a href="/useralbumreview" class="pure-menu-link">Leave a review on a community collection</a>
 </div>
 
    

@@ -15,14 +15,14 @@
 <!-- everything goes into this div -->
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
-    <a href="index.html" class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
+    <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
             <a href="/" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="#" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search</a>
 		</div>
 	</li>
 </ul>
@@ -48,6 +48,12 @@
         <p>Review Content:</p>
         <textarea name="descField"></textarea>
   
+        <select name = "voteValue">
+            <p> Rating:
+            <option value="1">Upvote</option>
+            <option value="-1">Downvote</option>
+
+        </p>
         </select>
         <input type="submit" value="Add Review">
 

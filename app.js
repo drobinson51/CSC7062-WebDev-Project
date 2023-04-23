@@ -202,13 +202,23 @@ app.post("/albumsearch", (req, res) => {
 
 //Displaying interface to add an album 
 app.get("/addaalbum", (req, res) => {
+  let sessionobj = req.session;
+
+  if (sessionobj.authen) {
   res.render("addrecord", {
     message: "Make your addition to the Stack of Wax",
   });
+} else {
+  res.redirect("/");
+}
 });
 
 //using axios to post al
 app.post("/addaalbum", (req, res) => {
+
+ 
+
+  
   //vars to be used
   let album = req.body.albumField;
   let artist = req.body.artistField;
@@ -249,6 +259,7 @@ app.post("/addaalbum", (req, res) => {
     .catch((err) => {
       console.log(err.message);
     });
+
 });
 
 //API for adding album
@@ -364,6 +375,11 @@ app.post("/songoutput/add", (req, res) => {
 
 // web app of adding song to album
 app.get("/addsongtouseralbum", (req, res) => {
+
+  let sessionobj = req.session;
+
+  if (sessionobj.authen) {
+
   userid = req.session.authen;
   const ep = `http://localhost:4000/songstouseralbums/${userid}`;
 
@@ -374,6 +390,9 @@ app.get("/addsongtouseralbum", (req, res) => {
       albumandsonginfo,
     });
   });
+} else {
+  res.redirect("/");
+}
 });
 // posting of adding song to album
 app.post("/addsongtouseralbum", (req, res) => {
@@ -865,16 +884,23 @@ app.get("/review", (req, res) => {
   }
 });
 
+
 //Posts song through axios on the web app
 app.post("/review", (req, res) => {
   let reviewcontent = req.body.descField;
   //stores your authen as a userID that is then fed to the API, allowing for it to be used
   let userid = req.body.userid;
   let album = req.body.albumValue;
+  let vote = req.body.voteValue;
 
   console.log(req.body.descField);
   console.log(req.body.userid);
   console.log(req.body.albumValue);
+
+  console.log(req.body.descField);
+  console.log(req.body.userid);
+  console.log(req.body.albumValue);
+  console.log(req.body.voteValue);
 
   const config = {
     headers: {
@@ -884,7 +910,7 @@ app.post("/review", (req, res) => {
 
   let endpoint = "http://localhost:4000/addingreview/";
 
-  let insertData = `descField=${reviewcontent}&userid=${userid}&albumValue=${album}`;
+  let insertData = `descField=${reviewcontent}&userid=${userid}&voteValue=${vote}&albumValue=${album}`;
 
   axios
     .post(endpoint, insertData, config)
@@ -902,15 +928,33 @@ app.post("/review", (req, res) => {
     });
 });
 
+
 //API of review post
 app.post("/addingreview", (req, res) => {
   let reviewcontent = req.body.descField;
+  //stores your authen as a userID that is then fed to the API, allowing for it to be used
   let userid = req.body.userid;
-  let album_id = req.body.albumValue;
+  let album = req.body.albumValue;
+  let vote = req.body.voteValue;
+  console.log(reviewcontent, userid, album, vote);
 
-  console.log(reviewcontent, userid);
+  let user_album_id = album;
+
+  voteValue = parseInt(vote);
+
+  console.log(voteValue);
+
+
 
   let addreview = `INSERT INTO review (review_content, user_id) VALUES('${reviewcontent}', ${userid})`;
+
+  if (voteValue === 1) {
+    addvote = `UPDATE album SET upvote_count = upvote_count + 1 WHERE album.album_id = ${album}`;
+  } else if (voteValue === -1) {
+    addvote = `UPDATE album SET upvote_count = upvote_count - 1 WHERE album.album_id = ${album}`;
+  } else {
+    return res.json({ message: "Invalid vote value" });
+  }
 
   //query for adding review
   db.query(addreview, (err, result) => {
@@ -920,13 +964,20 @@ app.post("/addingreview", (req, res) => {
     let review_id = result.insertId;
 
     let addtoAlbumTracklist = `INSERT INTO album_review (album_id, review_id)  
-    VALUES (${album_id}, ${review_id});`;
+    VALUES (${album}, ${review_id});`;
 
     //second query to add to the album review
     db.query(addtoAlbumTracklist, (err, result) => {
       if (err) throw err;
 
       res.json({ message: "Review added and album reviewlist updated" });
+
+      db.query(addvote, (err, result) => {
+        if (err) {
+          console.log(err);
+          return res.json({ message: "Failed to add vote" });
+        }
+      });
     });
   });
 });
