@@ -81,7 +81,7 @@ app.get("/displayalbums", (req, res) => {
 
 //row id of API output
 
-app.get("/inspectalbums", (req, res) => {
+app.get("/inspect", (req, res) => {
   let item_id = req.query.item;
   let endp = `http://localhost:4000/albumoutput/${item_id}`;
 
@@ -155,28 +155,43 @@ app.post("/searchalbums", (req, res) => {
 
       let albumdata = response.data;
       console.log(albumdata);
-      res.render("albuminfo", {albumdata});
+      res.render("apialbuminfo", { titletext: "Albums", albumdata });
     })
     .catch((err) => {
       console.log(err.message);
     });
 });
 
-
+//api of album search basically checks what's been submitted and modifies the query based on that
 app.post("/albumsearch", (req, res) => {
   let artist = req.body.artistField;
   let albumyear = req.body.albumyear;
   let genre = req.body.genretypes;
 
-  console.log(artist);
-  console.log(albumyear);
-  console.log(genre);
-
   let albumsearch = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name 
-                  FROM album 
-                  INNER JOIN genre 
-                  ON album.genre_id = genre.genre_id 
-                  WHERE album.artist = "${artist}" AND genre.genre_id = "${genre}" AND album.year_of_release = ${albumyear}`;
+  FROM album 
+  INNER JOIN genre 
+  ON album.genre_id = genre.genre_id`;
+
+  // Adds the WHERE clause based on what it has been fed through the api.
+  if (artist || albumyear || genre && genre !== "0") {
+    albumsearch += ` WHERE `;
+    if (artist) {
+      albumsearch += `album.artist = '${artist}'`;
+      if (albumyear || genre && genre !== "0") {
+        albumsearch += ` AND `;
+      }
+    }
+    if (albumyear) {
+      albumsearch += `album.year_of_release = ${albumyear}`;
+      if (genre && genre !== "0") {
+        albumsearch += ` AND `;
+      }
+    }
+    if (genre && genre !== "0") {
+      albumsearch += `genre.genre_id = ${genre}`;
+    }
+  }
 
   db.query(albumsearch, (err, result) => {
     if (err) throw err;
@@ -377,7 +392,7 @@ app.get('/addsongtouseralbum', (req, res) => {
 
   axios.get(ep).then((response) => {
     const albumandsonginfo = response.data;
-    res.render('addsongtouseralbum', { message: 'User Albums', albumandsonginfo });
+    res.render('addsongtouseralbum', { message: 'Your albums', albumandsonginfo });
   });
 });
 // posting of adding song to album 
