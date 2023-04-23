@@ -404,12 +404,14 @@ let checkuser = `SELECT * FROM user_album WHERE user_id = ${userid};`
       res.render("addsongtouseralbum", {message: "Your albums", albumandsonginfo});
     });
   } else {
-    res.redirect("/home");
+    let userid = sessionobj.authen;
+    let user = "SELECT * FROM auth_user WHERE user_id = ?";
+    db.query(user, [userid], (err, row) => {
+      let firstrow = row[0];
+      res.render("home", { userdata: firstrow, sysinfo: "You don't have any albums, make one and then try again"});
+    });
   }
- 
-  });
-
-
+});
 } else {
   res.redirect("/");
 }
@@ -1073,7 +1075,7 @@ app.get("/home", (req, res) => {
 
     db.query(user, [userid], (err, row) => {
       let firstrow = row[0];
-      res.render("home", { userdata: firstrow });
+      res.render("home", { userdata: firstrow, sysinfo: "Hope you are enjoying our collection!"})
     });
   } else {
     res.send("Access has been denied");
