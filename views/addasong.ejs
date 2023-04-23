@@ -43,6 +43,13 @@
         <p>Time:
         <input name="timeField">
         </p>
+
+        <p> Select album you want to add your song to: </p>
+        <select name="albumValue">
+        <% albuminfo.forEach((album) => { %>
+        <option value="<%= album.album_id %>"><%= album.album_title %></option>
+        <% }); %>
+     </select>
         <input type="submit" value="Add Song">
 
         </form>
