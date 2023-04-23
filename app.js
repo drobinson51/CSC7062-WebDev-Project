@@ -101,7 +101,7 @@ app.get("/albumoutput", (req, res) => {
 app.get("/albumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  let getalbum = `SELECT album.album_title, album.artist, album.album_desc, album.year_of_release, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  let getalbum = `SELECT album.album_title, album.upvote_count, album.artist, album.album_desc, album.year_of_release, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
   FROM album
   INNER JOIN genre
   ON album.genre_id = genre.genre_id
@@ -190,7 +190,12 @@ app.post("/albumsearch", (req, res) => {
     if (genre && genre !== "0") {
       searchquery += `genre.genre_id = ${genre}`;
     }
+
+    
   }
+
+  //default orders them by descending values, allowing user to see most liked values
+  searchquery += ` ORDER BY album.upvote_count DESC`
 
   db.query(searchquery, (err, result) => {
     if (err) throw err;
@@ -594,7 +599,7 @@ app.get("/useralbumoutput", (req, res) => {
 app.get("/useralbumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
   FROM user_album
   INNER JOIN genre
   ON user_album.genre_id = genre.genre_id
