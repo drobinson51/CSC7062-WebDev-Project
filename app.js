@@ -245,9 +245,10 @@ app.post("/albumoutput/add", (req, res) => {
   let genre = req.body.genretypes;
 
   let addalbum = `INSERT INTO album (album_title, artist, year_of_release, album_desc, genre_id)  
-                  VALUES('${album}', '${artist}', ${year_of_release}, '${album_desc}', ${genre} ); `;
-
-  db.query(addalbum, (err, data) => {
+                  VALUES (?, ?, ?, ?, ?)`;
+  let values = [album, artist, year_of_release, album_desc, genre];
+                  
+  db.query(addalbum, values, (err, data) => {
     if (err) {
       res.json({ err });
       throw err;
@@ -311,9 +312,10 @@ app.post("/songoutput/add", (req, res) => {
   let time = req.body.timeField;
 
   let addsong = `INSERT INTO song (title, time)  
-                  VALUES('${title}', '${time}'); `;
+                  VALUES(?, ?); `;
+  let values = [title, time];
 
-  db.query(addsong, (err, data) => {
+  db.query(addsong, values, (err, data) => {
     if (err) {
       res.json({ err });
       throw err;
@@ -328,7 +330,6 @@ app.post("/songoutput/add", (req, res) => {
     }
   });
 });
-
 //gets song amd albums, uses for each loop to display them in select
 app.get("/addsongtoalbum", (req, res) => {
   let ep = `http://localhost:4000/songstoalbums/ `;
@@ -616,6 +617,7 @@ app.post("/useralbumtracklist/add", (req, res) => {
   });
 });
 
+
 app.get("/searchuseralbums", (req, res) => {
 
   res.render("searchuseralbums", { titletext: "Albums",});
@@ -651,23 +653,31 @@ app.post("/searchuseralbums", (req, res) => {
     });
 });
 
-
+//API of user album search
 app.post("/useralbumsearch", (req, res) => {
-  let artist = req.body.artistField;
-  let albumyear = req.body.albumyear;
   let genre = req.body.genretypes;
 
-  console.log(artist);
-  console.log(albumyear);
+  
   console.log(genre);
 
-  let albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name
+
+  //the default search ranks by upvote count, allowing the filtering by most liked as a default option
+  let albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name 
   FROM user_album 
-  INNER JOIN genre 
-  ON user_album.genre_id = genre.genre_id 
-  INNER JOIN auth_user 
-  ON user_album.user_id = auth_user.user_id 
-  WHERE genre.genre_id = ${genre}`;
+  INNER JOIN genre ON user_album.genre_id = genre.genre_id 
+  INNER JOIN auth_user ON user_album.user_id = auth_user.user_id
+  ORDER BY user_album.upvote_count DESC;`;
+  
+  
+//if a genre has been posted it searches by that id
+if (genre && genre !== "0") {
+  albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name 
+  FROM user_album 
+  INNER JOIN genre ON user_album.genre_id = genre.genre_id 
+  INNER JOIN auth_user ON user_album.user_id = auth_user.user_id 
+  WHERE genre.genre_id = ${genre} 
+  ORDER BY user_album.upvote_count DESC;`;
+}
 
   db.query(albumsearch, (err, result) => {
     if (err) throw err;
@@ -676,6 +686,7 @@ app.post("/useralbumsearch", (req, res) => {
     res.json({ data: result });
   });
 });
+
 
 
 
@@ -823,9 +834,10 @@ app.post("/useralbumoutput/add", (req, res) => {
   let genre = req.body.genretypes;
 
   let adduseralbum = `INSERT INTO user_album (custom_album_name, album_desc, genre_id, user_id) 
-                  VALUES('${customName}', '${album_desc}', ${genre}, ${user} ); `;
+                      VALUES(?, ?, ?, ?); `;
+  let uservalues = [customName, album_desc, genre, user];
 
-  db.query(adduseralbum, (err, data) => {
+  db.query(adduseralbum, uservalues, (err, data) => {
     if (err) {
       res.json({ err });
       throw err;
