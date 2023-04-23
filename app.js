@@ -385,16 +385,31 @@ app.get("/addsongtouseralbum", (req, res) => {
 
   if (sessionobj.authen) {
 
+ 
+
   userid = req.session.authen;
   const ep = `http://localhost:4000/songstouseralbums/${userid}`;
 
-  axios.get(ep).then((response) => {
-    const albumandsonginfo = response.data;
-    res.render("addsongtouseralbum", {
-      message: "Your albums",
-      albumandsonginfo,
+let usercheck = false;
+
+let checkuser = `SELECT * FROM user_album WHERE user_id = ${userid};`
+
+ db.query(checkuser, (err, rows) => {
+  if (err) throw err;
+  let numRows = rows.length;
+
+  if (numRows > 0) {
+    axios.get(ep).then((response) => {
+      const albumandsonginfo = response.data;
+      res.render("addsongtouseralbum", {message: "Your albums", albumandsonginfo});
     });
+  } else {
+    res.redirect("/home");
+  }
+ 
   });
+
+
 } else {
   res.redirect("/");
 }
