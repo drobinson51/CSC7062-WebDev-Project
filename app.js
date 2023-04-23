@@ -61,15 +61,8 @@ db.connect((err) => {
   if (err) throw err;
 });
 
-app.get("/addalbum", (req, res) => {
-  let ep = "http://localhost:4000/albumoutput/";
 
-  axios.get(ep).then((response) => {
-    let albumdata = response.data;
-    res.render("addalbum", { titletext: "Albums", albumdata });
-  });
-});
-
+//default page to display all albums, exists more for programmer's sake, but can be used to see all albums on display if search is not wanted
 app.get("/displayalbums", (req, res) => {
   let ep = `http://localhost:4000/albumoutput/ `;
 
@@ -79,8 +72,8 @@ app.get("/displayalbums", (req, res) => {
   });
 });
 
-//row id of API output
 
+//Web app of what is going on during rowid inspect 
 app.get("/inspect", (req, res) => {
   let item_id = req.query.item;
   let endp = `http://localhost:4000/albumoutput/${item_id}`;
@@ -94,6 +87,7 @@ app.get("/inspect", (req, res) => {
   });
 });
 
+//General API query to output all albums
 app.get("/albumoutput", (req, res) => {
   let allalbums = `SELECT * From album;`;
 
@@ -103,6 +97,7 @@ app.get("/albumoutput", (req, res) => {
   });
 });
 
+//API  for allowing rowid, such as in the search, to be used as the query for a personalised display page
 app.get("/albumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
@@ -125,9 +120,7 @@ app.get("/albumoutput/:rowid", (req, res) => {
 
 //displays web app to search for albums
 app.get("/searchalbums", (req, res) => {
-
-  res.render("searchalbums", { titletext: "Albums",});
-
+  res.render("searchalbums", { titletext: "Albums" });
 });
 //posts info submitted from webapp
 app.post("/searchalbums", (req, res) => {
@@ -149,10 +142,9 @@ app.post("/searchalbums", (req, res) => {
 
   let endpoint = "http://localhost:4000/albumsearch";
 
-  axios
-    .post(endpoint, insertData, config)
+  //axios posts the data, and then the response data is used for the output of the page
+  axios.post(endpoint, insertData, config)
     .then((response) => {
-
       let albumdata = response.data;
       console.log(albumdata);
       res.render("apialbuminfo", { titletext: "Albums", albumdata });
@@ -168,41 +160,47 @@ app.post("/albumsearch", (req, res) => {
   let albumyear = req.body.albumyear;
   let genre = req.body.genretypes;
 
-  let albumsearch = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name 
+  //base query to be read through, uses an inner join to get relevant data, joined on album and genre tables
+  let searchquery = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name 
   FROM album 
   INNER JOIN genre 
   ON album.genre_id = genre.genre_id`;
 
-  // Adds the WHERE clause based on what it has been fed through the api.
-  if (artist || albumyear || genre && genre !== "0") {
-    albumsearch += ` WHERE `;
+  // Adds the WHERE clause based on what it has been fed through the api. += allows it to dynamically resize and add search queries, by using WHERE and then adding AND it basically allows you to search for all those queries if they add
+  if (artist || albumyear || (genre && genre !== "0")) {
+    searchquery += ` WHERE `;
+
+    //the artist filter
     if (artist) {
-      albumsearch += `album.artist = '${artist}'`;
-      if (albumyear || genre && genre !== "0") {
-        albumsearch += ` AND `;
+      searchquery += `album.artist = '${artist}'`;
+
+      //looks to see if album year or genre are also included in filter,
+      if (albumyear || (genre && genre !== "0")) {
+        searchquery += ` AND `;
       }
     }
+    //only album year is sent
     if (albumyear) {
-      albumsearch += `album.year_of_release = ${albumyear}`;
+      searchquery += `album.year_of_release = ${albumyear}`;
       if (genre && genre !== "0") {
-        albumsearch += ` AND `;
+        searchquery += ` AND `;
       }
     }
+    // genre
     if (genre && genre !== "0") {
-      albumsearch += `genre.genre_id = ${genre}`;
+      searchquery += `genre.genre_id = ${genre}`;
     }
   }
 
-  db.query(albumsearch, (err, result) => {
+  db.query(searchquery, (err, result) => {
     if (err) throw err;
 
-    // Pass the retrieved data to the res.json() method
+    // Feeds the data back
     res.json({ data: result });
   });
 });
 
-
-//Displaying interface to add an album album
+//Displaying interface to add an album 
 app.get("/addaalbum", (req, res) => {
   res.render("addrecord", {
     message: "Make your addition to the Stack of Wax",
@@ -211,13 +209,15 @@ app.get("/addaalbum", (req, res) => {
 
 //using axios to post al
 app.post("/addaalbum", (req, res) => {
+  //vars to be used
   let album = req.body.albumField;
   let artist = req.body.artistField;
   let albumyear = req.body.albumyear;
   let desc = req.body.descField;
   let genre = req.body.genretypes;
 
-  const insertData = {
+  //puts them in to one block to be used
+  let insertData = {
     albumField: album,
     artistField: artist,
     albumyear: albumyear,
@@ -243,7 +243,7 @@ app.post("/addaalbum", (req, res) => {
 
       // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
       res.render("addrecord", {
-        message: `${resmessage}. Would you like to add another?`,
+        message: `${resmessage}. Would you like to add another album?`,
       });
     })
     .catch((err) => {
@@ -262,7 +262,7 @@ app.post("/albumoutput/add", (req, res) => {
   let addalbum = `INSERT INTO album (album_title, artist, year_of_release, album_desc, genre_id)  
                   VALUES (?, ?, ?, ?, ?)`;
   let values = [album, artist, year_of_release, album_desc, genre];
-                  
+
   db.query(addalbum, values, (err, data) => {
     if (err) {
       res.json({ err });
@@ -273,7 +273,7 @@ app.post("/albumoutput/add", (req, res) => {
       let respObj = {
         id: data.insertId,
         title: album,
-        message: `${album} album added to Stack of Wax`,
+        message: `${album} added to Stack of Wax`,
       };
       res.json({ respObj });
     }
@@ -281,36 +281,22 @@ app.post("/albumoutput/add", (req, res) => {
 });
 
 //Posting song to albums
-// app.get("/addsong", (req, res) => {
-// let ep = "http://localhost:4000/albumoutput";
-//  axios.get(ep).then((response) => {
-//     let albuminfo = response.data;
-//     res.render("addasong", { message: "Add your song to the Stack of Wax", albuminfo});
-//   });
-// });
-
-
 app.get("/addsong", function (req, res) {
-  axios
-    .get("http://localhost:4000/albumoutput")
-    .then(function (response) {
+  axios.get("http://localhost:4000/albumoutput").then(function (response) {
       let albuminfo = response.data.data;
-      res.render("addasong", { message: "Add your song to the Stack of Wax", albuminfo });
-    })
-    .catch(function (error) {
+      res.render("addasong", {message: "Add your song to the Stack of Wax", albuminfo,});
+    }).catch(function (error) {
       console.log(error);
       res.status(500).send("Error retrieving album data");
     });
 });
-
-
 
 app.post("/addsong", (req, res) => {
   let title = req.body.titleField;
   let time = req.body.timeField;
   let album = req.body.albumValue;
 
-  const insertData = {
+  let insertData = {
     titleField: title,
     timeField: time,
     albumValue: album,
@@ -324,27 +310,19 @@ app.post("/addsong", (req, res) => {
 
   let endpoint = "http://localhost:4000/songoutput/add";
 
-  axios
-    .post(endpoint, insertData, config)
-    .then((response) => {
+  axios.post(endpoint, insertData, config).then((response) => {
       let insertedid = response.data.respObj.id;
       let resmessage = response.data.respObj.message;
 
       // Get album info for rendering the page
-      axios.get("http://localhost:4000/albumoutput")
-        .then(function (response) {
+      axios.get("http://localhost:4000/albumoutput").then(function (response) {
           let albuminfo = response.data.data;
-          res.render("addasong", {
-            message: `${resmessage}. Would you like to add another?`,
-            albuminfo: albuminfo,
-          });
-        })
-        .catch(function (error) {
+          res.render("addasong", {message: `${resmessage}. Would you like to add another?`, albuminfo: albuminfo,});
+        }).catch(function (error) {
           console.log(error);
           res.status(500).send("Error retrieving album data");
         });
-    })
-    .catch((err) => {
+    }).catch((err) => {
       console.log(err.message);
     });
 });
@@ -384,18 +362,20 @@ app.post("/songoutput/add", (req, res) => {
   });
 });
 
-
 // web app of adding song to album
-app.get('/addsongtouseralbum', (req, res) => {
-  userid = req.session.authen
+app.get("/addsongtouseralbum", (req, res) => {
+  userid = req.session.authen;
   const ep = `http://localhost:4000/songstouseralbums/${userid}`;
 
   axios.get(ep).then((response) => {
     const albumandsonginfo = response.data;
-    res.render('addsongtouseralbum', { message: 'Your albums', albumandsonginfo });
+    res.render("addsongtouseralbum", {
+      message: "Your albums",
+      albumandsonginfo,
+    });
   });
 });
-// posting of adding song to album 
+// posting of adding song to album
 app.post("/addsongtouseralbum", (req, res) => {
   let albumValue = req.body.albumValue;
   let songValue = req.body.songValue;
@@ -431,7 +411,7 @@ app.post("/addsongtouseralbum", (req, res) => {
       console.log(err.message);
     });
 
-  let ep = `http://localhost:4000/songtstouseralbums/ `;
+  let ep = `http://localhost:4000/songstouseralbums/ `;
 
   axios.get(ep).then((response) => {
     let albumandsonginfo = response.data;
@@ -441,12 +421,11 @@ app.post("/addsongtouseralbum", (req, res) => {
 
 //sql query run to get the songs and albums, nothing shared between rows, ergo 1=1 to ensure join
 app.get("/songstouseralbums", (req, res) => {
-
   let songtouseralbums = `SELECT user_album.user_album_id, user_album.custom_album_name, NULL AS song_id, NULL AS title
   FROM user_album
   UNION
   SELECT NULL AS album_id, NULL AS album_title, song.song_id, song.title
-  FROM song;`
+  FROM song;`;
 
   db.query(songtouseralbums, (err, data) => {
     if (err) throw err;
@@ -455,20 +434,20 @@ app.get("/songstouseralbums", (req, res) => {
 });
 
 //users the user id, from the authen, as the query
-app.get('/songstouseralbums/:userId', (req, res) => {
-const userId = req.params.userId;
+app.get("/songstouseralbums/:userId", (req, res) => {
+  const userId = req.params.userId;
 
-let songtouseralbums = `SELECT user_album.user_album_id, user_album.custom_album_name, NULL AS song_id, NULL AS title
+  let songtouseralbums = `SELECT user_album.user_album_id, user_album.custom_album_name, NULL AS song_id, NULL AS title
 FROM user_album
 WHERE user_album.user_id = ?
 UNION
 SELECT NULL AS album_id, NULL AS album_title, song.song_id, song.title
-FROM song;`
+FROM song;`;
 
-db.query(songtouseralbums, [userId], (err, data) => {
-  if (err) throw err;
-  res.json({ data });
-});
+  db.query(songtouseralbums, [userId], (err, data) => {
+    if (err) throw err;
+    res.json({ data });
+  });
 });
 
 //API for userablum tracklist being added to
@@ -495,15 +474,11 @@ app.post("/useralbumtracklist/add", (req, res) => {
   });
 });
 
-
 app.get("/searchuseralbums", (req, res) => {
-
-  res.render("searchuseralbums", { titletext: "Albums",});
-
+  res.render("searchuseralbums", { titletext: "Albums" });
 });
 //posts info submitted from webapp
 app.post("/searchuseralbums", (req, res) => {
- 
   let genre = req.body.genretypes;
 
   const insertData = {
@@ -521,7 +496,6 @@ app.post("/searchuseralbums", (req, res) => {
   axios
     .post(endpoint, insertData, config)
     .then((response) => {
-
       let albumdata = response.data;
       console.log(albumdata);
       res.render("useralbumslist", { titletext: "Albums", albumdata });
@@ -535,9 +509,7 @@ app.post("/searchuseralbums", (req, res) => {
 app.post("/useralbumsearch", (req, res) => {
   let genre = req.body.genretypes;
 
-  
   console.log(genre);
-
 
   //the default search ranks by upvote count, allowing the filtering by most liked as a default option
   let albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name 
@@ -545,17 +517,16 @@ app.post("/useralbumsearch", (req, res) => {
   INNER JOIN genre ON user_album.genre_id = genre.genre_id 
   INNER JOIN auth_user ON user_album.user_id = auth_user.user_id
   ORDER BY user_album.upvote_count DESC;`;
-  
-  
-//if a genre has been posted it searches by that id
-if (genre && genre !== "0") {
-  albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name 
+
+  //if a genre has been posted it searches by that id
+  if (genre && genre !== "0") {
+    albumsearch = `SELECT user_album.user_album_id,user_album.upvote_count, user_album.custom_album_name, user_album.album_desc, genre.name, auth_user.first_name, auth_user.last_name 
   FROM user_album 
   INNER JOIN genre ON user_album.genre_id = genre.genre_id 
   INNER JOIN auth_user ON user_album.user_id = auth_user.user_id 
   WHERE genre.genre_id = ${genre} 
   ORDER BY user_album.upvote_count DESC;`;
-}
+  }
 
   db.query(albumsearch, (err, result) => {
     if (err) throw err;
@@ -564,9 +535,6 @@ if (genre && genre !== "0") {
     res.json({ data: result });
   });
 });
-
-
-
 
 //displaying user albums
 app.get("/displayuseralbums", (req, res) => {
@@ -626,7 +594,6 @@ app.get("/useralbumoutput/:rowid", (req, res) => {
   });
 });
 
-
 //Displaying interface to add an album album
 app.get("/addauseralbum", (req, res) => {
   //protection
@@ -663,7 +630,6 @@ app.get("/addauseralbum", (req, res) => {
 
 //using axios to post al
 app.post("/addauseralbum", (req, res) => {
-
   let customName = req.body.albumField;
   let user = req.body.userid;
   let album_desc = req.body.descField;
@@ -702,8 +668,6 @@ app.post("/addauseralbum", (req, res) => {
     });
 });
 
-
-
 //API for user album adding
 app.post("/useralbumoutput/add", (req, res) => {
   let customName = req.body.albumField;
@@ -731,7 +695,6 @@ app.post("/useralbumoutput/add", (req, res) => {
     }
   });
 });
-
 
 //renders web app to add review
 app.get("/useralbumreview", (req, res) => {
@@ -806,8 +769,6 @@ app.post("/useralbumreview", (req, res) => {
     });
 });
 
-
-
 //API of user album review post
 
 app.post("/addinguseralbumreview", (req, res) => {
@@ -822,7 +783,7 @@ app.post("/addinguseralbumreview", (req, res) => {
 
   voteValue = parseInt(vote);
 
-  console.log(voteValue)
+  console.log(voteValue);
 
   let addreview = `INSERT INTO review (review_content, user_id) VALUES('${reviewcontent}', ${userid})`;
 
@@ -834,8 +795,6 @@ app.post("/addinguseralbumreview", (req, res) => {
     return res.json({ message: "Invalid vote value" });
   }
 
-
-
   //query for adding review
   db.query(addreview, (err, result) => {
     if (err) throw err;
@@ -843,7 +802,6 @@ app.post("/addinguseralbumreview", (req, res) => {
     // Get the last inserted review id
     let review_id = result.insertId;
 
-    
     let addtoUserAlbumTracklist = `INSERT INTO useralbum_review (user_album_id, review_id)  
     VALUES (${user_album_id}, ${review_id});`;
 
@@ -858,18 +816,10 @@ app.post("/addinguseralbumreview", (req, res) => {
           console.log(err);
           return res.json({ message: "Failed to add vote" });
         }
-
       });
-
-      
     });
   });
-
-
-    
 });
-
-
 
 //displaying review page and sql query to get all user albums, which are all available to review
 app.get("/addtouseralbumreviewlist", (req, res) => {
@@ -880,8 +830,6 @@ app.get("/addtouseralbumreviewlist", (req, res) => {
     res.json({ data });
   });
 });
-
-
 
 //renders interface to add review
 app.get("/review", (req, res) => {
@@ -971,7 +919,6 @@ app.post("/addingreview", (req, res) => {
     // Get the last inserted review id
     let review_id = result.insertId;
 
-    
     let addtoAlbumTracklist = `INSERT INTO album_review (album_id, review_id)  
     VALUES (${album_id}, ${review_id});`;
 
