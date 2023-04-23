@@ -3,6 +3,7 @@ const express = require("express");
 const axios = require("axios");
 const app = express();
 const mysql = require("mysql");
+const bcrypt = require("bcryptjs");
 
 const cookieParser = require("cookie-parser");
 const sessions = require("express-session");
@@ -1020,25 +1021,38 @@ app.get("/", (req, res) => {
 });
 
 //Posts these values, your email and string to the DB where it checks them against its values
-app.post("/", (req, res) => {
+app.post("/", async (req, res) => {
+  try {
   let username = req.body.emailString;
   let userpassword = req.body.passwordString;
 
-  let checkuser = "SELECT * FROM auth_user WHERE username = ? AND password = ?";
+  
+  let checkuser = "SELECT * FROM auth_user WHERE username = ?";
 
-  db.query(checkuser, [username, userpassword], (err, rows) => {
+  db.query(checkuser, [username], async (err, rows) => {
     if (err) throw err;
     let numRows = rows.length;
 
+    
     //if all is in order then a session is made and set to user id, useful for security and queries later
     if (numRows > 0) {
-      let sessionobj = req.session;
-      sessionobj.authen = rows[0].user_id;
-      res.redirect("/home");
+      const validPass = await bcrypt.compare(userpassword, rows[0].password);
+      if (validPass) {
+        let sessionobj = req.session;
+        sessionobj.authen = rows[0].user_id;
+        res.redirect("/home");
+      } else {
+        res.redirect("/");
+      }
     } else {
       res.redirect("/");
     }
   });
+} catch(e) {
+  console.log(e);
+  res.status(500).send("User or Password not found")
+
+}
 });
 
 //Not locked off, if you want to get to certain parts of the website you need to register
@@ -1047,12 +1061,18 @@ app.get("/register", (req, res) => {
 });
 
 //Fill in the info and you are allowed in, once done you are redirected to log-in
-app.post("/admin/register", (req, res) => {
+app.post("/admin/register", async (req, res) => {
+  try {
   let username = req.body.username;
-  let password = req.body.password;
+  let userpassword = req.body.password;
   let firstname = req.body.firstname;
   let lastname = req.body.lastname;
   let usertype = req.body.status;
+
+  // used to store passwords
+  let password = await bcrypt.hash(userpassword, 10);
+
+  console.log(password);
 
   let albumsql =
     "INSERT INTO auth_user (username, password, first_name, last_name, status) VALUES( ? , ? , ? , ? , ?)";
@@ -1064,6 +1084,10 @@ app.post("/admin/register", (req, res) => {
       res.redirect("/");
     }
   );
+  } catch(e) {
+    console.log(e)
+    res.status(500).send("Error in registering");
+  }
 });
 
 //Home page, protected route.
