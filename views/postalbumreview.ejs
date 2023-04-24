@@ -32,9 +32,11 @@
 <div class="pure-g centre">
     <form action="/review" method="POST">
 
+       
         <p>Your id is: <span><%= user.user_id %></span></p>
         <input type="hidden" name="userid" value="<%= user.user_id %>">
 
+        <p><%= message %></p>
         <p> Select album: </p>
         <select name = "albumValue">
             <% albumavailable['data'].forEach( (album)=>{   %>

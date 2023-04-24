@@ -211,9 +211,15 @@ app.get("/addaalbum", (req, res) => {
   let sessionobj = req.session;
 
   if (sessionobj.authen) {
-  res.render("addrecord", {
-    message: "Make your addition to the Stack of Wax",
+
+    let endpoint = `http://localhost:4000/genrelist`
+
+    axios.get(endpoint).then((response) => {
+      const genreinfo = response.data;
+      res.render("addrecord", {message: "Make your addition to the Stack of Wax", genreinfo});
+    
   });
+  
 } else {
   res.redirect("/");
 }
@@ -249,18 +255,16 @@ app.post("/addaalbum", (req, res) => {
 
   let endpoint = "http://localhost:4000/albumoutput/add";
 
-  axios
-    .post(endpoint, insertData, config)
-    .then((response) => {
+  axios.post(endpoint, insertData, config).then((response) => {
       let insertedid = response.data.respObj.id;
       let resmessage = response.data.respObj.message;
 
-      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+      let secondep = `http://localhost:4000/genrelist`
 
-      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
-      res.render("addrecord", {
-        message: `${resmessage}. Would you like to add another album?`,
-      });
+    axios.get(secondep).then((response) => {
+      const genreinfo = response.data;
+      res.render("addrecord", {message: `${resmessage}. Would you like to add another album?`, genreinfo});
+    });
     })
     .catch((err) => {
       console.log(err.message);
@@ -296,6 +300,20 @@ app.post("/albumoutput/add", (req, res) => {
     }
   });
 });
+
+
+//genre api for getting what's available. 
+app.get("/genrelist", (req, res) => {
+
+  let genresearch = `SELECT name, genre_id from genre`;
+
+  db.query(genresearch, (err, data) => {
+    if (err) throw err;
+    res.json({ data });
+  });
+
+});
+
 
 //Posting song to albums
 app.get("/addsong", function (req, res) {
@@ -391,7 +409,6 @@ app.get("/addsongtouseralbum", (req, res) => {
   userid = req.session.authen;
   const ep = `http://localhost:4000/songstouseralbums/${userid}`;
 
-let usercheck = false;
 
 let checkuser = `SELECT * FROM user_album WHERE user_id = ${userid};`
 
@@ -617,7 +634,7 @@ app.get("/useralbumoutput", (req, res) => {
 app.get("/useralbumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, genre.genre_id, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
   FROM user_album
   INNER JOIN genre
   ON user_album.genre_id = genre.genre_id
@@ -636,7 +653,35 @@ app.get("/useralbumoutput/:rowid", (req, res) => {
   });
 });
 
-//Displaying interface to add an album album
+// Displaying interface to add an album album
+// app.get("/addauseralbum", (req, res) => {
+//   //protection
+//   let sessionobj = req.session;
+
+//   if (sessionobj.authen) {
+//     let userId = sessionobj.authen;
+//     let user = "SELECT * FROM auth_user WHERE user_id = ?";
+
+//     db.query(user, [userId], (err, row) => {
+//       let firstrow = row[0];
+
+//       let ep = `http://localhost:4000/useralbumoutput/`;
+//       let ep2 = `http://localhost:4000/genrelist/`;
+
+//       axios.get(ep).then((response) => {
+//           let albumavailable = response.data;
+//           res.render("adduserrecord", {message: "Albums",albumavailable, user: firstrow});
+//         })
+//         .catch((error) => {
+//           console.log(error);
+//           res.status(500).send("Internal server error");
+//         });
+//     });
+//   } else {
+//     res.redirect("/");
+//   }
+// });
+
 app.get("/addauseralbum", (req, res) => {
   //protection
   let sessionobj = req.session;
@@ -649,15 +694,24 @@ app.get("/addauseralbum", (req, res) => {
       let firstrow = row[0];
 
       let ep = `http://localhost:4000/useralbumoutput/`;
+      let ep2 = `http://localhost:4000/genrelist/`;
 
-      axios
-        .get(ep)
-        .then((response) => {
+      axios.get(ep).then((response) => {
           let albumavailable = response.data;
-          res.render("adduserrecord", {
-            message: "Albums",
-            albumavailable,
-            user: firstrow,
+
+          axios.get(ep2).then((response2) => {
+            let genreinfo = response2.data;
+
+            res.render("adduserrecord", { 
+              message: "Albums", 
+              albumavailable: albumavailable,
+              genreinfo: genreinfo,
+              user: firstrow 
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            res.status(500).send("Internal server error");
           });
         })
         .catch((error) => {
@@ -670,7 +724,56 @@ app.get("/addauseralbum", (req, res) => {
   }
 });
 
-//using axios to post al
+
+
+// using axios to post albums
+// app.post("/addauseralbum", (req, res) => {
+//   let customName = req.body.albumField;
+//   let user = req.body.userid;
+//   let album_desc = req.body.descField;
+//   let genre = req.body.genretypes;
+
+//   let firstrow = null; // Define firstrow outside of the callback function
+//   let userquery = "SELECT * FROM auth_user WHERE user_id = ?";
+
+//   const insertData = {
+//     albumField: customName,
+//     userid: user,
+//     descField: album_desc,
+//     genretypes: genre,
+//   };
+
+//   const config = {
+//     headers: {
+//       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+//     },
+//   };
+
+//   let endpoint = "http://localhost:4000/useralbumoutput/add";
+
+  
+//   db.query(userquery, user (err, row) => {
+//     if (err) {
+//       console.log(err);
+//       res.status(500).send("Internal server error");
+//       return;
+//     }
+//   });
+
+//   axios.post(endpoint, insertData, config).then((response) => {
+//       let insertedid = response.data.respObj.id;
+//       let resmessage = response.data.respObj.message;
+
+//       let secondep = `http://localhost:4000/genrelist`
+
+//       axios.get(secondep).then((response) => {
+//         const genreinfo = response.data;
+//         res.render("adduserrecord", {message: `${resmessage}. Would you like to add another personal album?`, genreinfo, user: firstrow});
+//       });
+//     });
+   
+// });
+
 app.post("/addauseralbum", (req, res) => {
   let customName = req.body.albumField;
   let user = req.body.userid;
@@ -692,23 +795,32 @@ app.post("/addauseralbum", (req, res) => {
 
   let endpoint = "http://localhost:4000/useralbumoutput/add";
 
-  axios
-    .post(endpoint, insertData, config)
-    .then((response) => {
+  let userquery = "SELECT * FROM auth_user WHERE user_id = ?";
+
+  db.query(userquery, [user], (err, rows) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    let firstrow = rows[0];
+
+    axios.post(endpoint, insertData, config).then((response) => {
       let insertedid = response.data.respObj.id;
       let resmessage = response.data.respObj.message;
 
-      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
+      let secondep = `http://localhost:4000/genrelist`
 
-      // res.render('addrecord', { message: `${resmessage}. INSERTED DB id ${insertedid}` });
-      res.render("addrecord", {
-        message: `${resmessage}. Would you like to add another?`,
+      // brings user back with message 
+      axios.get(secondep).then((response) => {
+        const genreinfo = response.data;
+        res.render("adduserrecord", {message: `${resmessage}. Would you like to add another personal album?`, genreinfo, user: firstrow});
       });
-    })
-    .catch((err) => {
-      console.log(err.message);
     });
+  });
 });
+
 
 //API for user album adding
 app.post("/useralbumoutput/add", (req, res) => {
@@ -757,7 +869,7 @@ app.get("/useralbumreview", (req, res) => {
         .then((response) => {
           let albumavailable = response.data;
           res.render("postuseralbumreview", {
-            message: "User Albums",
+            message: "Post your review",
             albumavailable,
             user: firstrow,
           });
@@ -772,7 +884,8 @@ app.get("/useralbumreview", (req, res) => {
   }
 });
 
-//web app for posting review
+
+
 app.post("/useralbumreview", (req, res) => {
   let reviewcontent = req.body.descField;
   //stores your authen as a userID that is then fed to the API, allowing for it to be used
@@ -798,18 +911,29 @@ app.post("/useralbumreview", (req, res) => {
   axios
     .post(endpoint, insertData, config)
     .then((response) => {
-      // console.log(response.data);
-      // console.log(response.data.respObj.message);
-      // let insertedid = response.data.data.insertId;
-      // let resmessage = response.data.respObj.message;
+      let user = "SELECT * FROM auth_user WHERE user_id = ?";
 
-      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
-      res.redirect("/useralbumreview");
-    })
-    .catch((err) => {
+      db.query(user, [userid], (err, row) => {
+        let firstrow = row[0];
+
+        let ep = `http://localhost:4000/addtoreviewlist/`;
+
+        axios.get(ep).then((response) => {
+            let albumavailable = response.data;
+            let message = `Your review has been added`;
+            res.render("postuseralbumreview", { message, albumavailable, user: firstrow });
+          }).catch((error) => {
+            console.log(error);
+            res.status(500).send("Internal server error");
+          });
+      });
+    }).catch((err) => {
       console.log(err.message);
     });
 });
+
+
+
 
 //API of user album review post
 
@@ -909,6 +1033,61 @@ app.get("/review", (req, res) => {
 
 
 //Posts song through axios on the web app
+// app.post("/review", (req, res) => {
+//   let reviewcontent = req.body.descField;
+//   //stores your authen as a userID that is then fed to the API, allowing for it to be used
+//   let userid = req.body.userid;
+//   let album = req.body.albumValue;
+//   let vote = req.body.voteValue;
+
+//   console.log(req.body.descField);
+//   console.log(req.body.userid);
+//   console.log(req.body.albumValue);
+
+//   console.log(req.body.descField);
+//   console.log(req.body.userid);
+//   console.log(req.body.albumValue);
+//   console.log(req.body.voteValue);
+
+//   const config = {
+//     headers: {
+//       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+//     },
+//   };
+
+//   let endpoint = "http://localhost:4000/addingreview/";
+
+//   let insertData = `descField=${reviewcontent}&userid=${userid}&voteValue=${vote}&albumValue=${album}`;
+
+//   axios.post(endpoint, insertData, config).then((response) => {
+     
+
+//       let user = "SELECT * FROM auth_user WHERE user_id = ?";
+
+//     db.query(user, [userid], (err, row) => {
+//       let firstrow = row[0];
+
+//       let ep = `http://localhost:4000/addtoreviewlist/`;
+
+
+     
+
+//       axios.get(ep).then((response) => {
+//         let albumavailable = response.data;
+//         let resmessage = response.data.respObj.message;
+//         let message = `${resmessage} has been added Albums`;
+//         res.render("postalbumreview", { message, albumavailable, user: firstrow });
+//       })
+//         .catch((error) => {
+//           console.log(error);
+//           res.status(500).send("Internal server error");
+//         });
+//       .catch((err) => {
+//       console.log(err.message);
+//     });
+// });
+
+
 app.post("/review", (req, res) => {
   let reviewcontent = req.body.descField;
   //stores your authen as a userID that is then fed to the API, allowing for it to be used
@@ -935,22 +1114,30 @@ app.post("/review", (req, res) => {
 
   let insertData = `descField=${reviewcontent}&userid=${userid}&voteValue=${vote}&albumValue=${album}`;
 
-  axios
-    .post(endpoint, insertData, config)
-    .then((response) => {
-      // console.log(response.data);
-      // console.log(response.data.respObj.message);
-      // let insertedid = response.data.data.insertId;
-      // let resmessage = response.data.respObj.message;
+  axios.post(endpoint, insertData, config).then((response) => {
+    let user = "SELECT * FROM auth_user WHERE user_id = ?";
 
-      // res.send(`${resmessage}. INSERTED DB id ${insertedid}`);
-      res.redirect("/review");
-    })
-    .catch((err) => {
-      console.log(err.message);
+    db.query(user, [userid], (err, row) => {
+      let firstrow = row[0];
+
+      let ep = `http://localhost:4000/addtoreviewlist/`;
+
+      axios.get(ep)
+        .then((response) => {
+          let albumavailable = response.data;
+          let message = `Your review has been added`;
+          res.render("postalbumreview", { message, albumavailable, user: firstrow });
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(500).send("Internal server error");
+        });
     });
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
 });
-
 
 //API of review post
 app.post("/addingreview", (req, res) => {

@@ -49,12 +49,16 @@
         <p>Album description:
         <textarea name="descField">
         </textarea>
+        <p> Select user albun: </p> 
         <select name = "genretypes">
-            <p> Select genre:
-            <option value="1">Nu Metal</option>
-            <option value="2">Rock n Roll</option>
-
-        </p>
+           
+            <% genreinfo['data'].forEach( (info)=>{   %>
+                <% if (info.user_album_id !== null && info.user_album_id !== "") { %>
+                <option value="<%= info.genre_id%>">"<%= info.name%>"</option>
+                <% } %>
+                <% }); %>
+            
+        </select>
         </select>
         <input type="submit" value="Add Album">
 
