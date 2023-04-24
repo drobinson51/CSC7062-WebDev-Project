@@ -407,7 +407,7 @@ app.get("/addsongtouseralbum", (req, res) => {
  
 
   userid = req.session.authen;
-  const ep = `http://localhost:4000/songstouseralbums/${userid}`;
+  let ep = `http://localhost:4000/songstouseralbums/${userid}`;
 
 
 let checkuser = `SELECT * FROM user_album WHERE user_id = ${userid};`
@@ -1293,6 +1293,10 @@ app.get("/home", (req, res) => {
   }
 });
 
+
+app.get("/index", (req, res) => {
+  res.render("index")
+});
 // Checking that session was working correctly if asked for
 app.get("/session", (req, res) => {
   console.log(req.session); // print out the session object

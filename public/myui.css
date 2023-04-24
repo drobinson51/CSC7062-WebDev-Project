@@ -3,10 +3,14 @@
   color: black !important;
 }
 
-body {
-  color: white;
+body{
   background-color: #333;
+  color:white;
+  margin: 0;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
+
+
 
 .pure-g {
   text-align: center;
@@ -36,3 +40,81 @@ h3 {
   display: block;
   text-align: center;
 }
+
+
+.welcome {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+a.btn {
+  background-color: purple;
+  border: none;
+  color: white;
+  display: block;
+  text-align: center;
+  font-size: 16px;
+  opacity: 1;
+  transition: 0.3s;
+  margin-top: 5%;
+  text-decoration: none;
+  border-radius: 20px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.right p {
+  text-align: center;
+  max-width: 80%;
+  margin: 0 auto;
+  max-width: 400px;
+  padding-bottom: 10%;
+}
+
+.right h2 {
+  text-align: center;
+  max-width: 80%;
+  margin: 0 auto;
+  max-width: 400px;
+  padding-bottom: 10%;
+}
+
+
+.left {
+  text-align: center;
+}
+
+.left, .right {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+
+
+input {
+  max-width: 100%;
+  width: 400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 780px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+
