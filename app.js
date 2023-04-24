@@ -419,7 +419,7 @@ let checkuser = `SELECT * FROM user_album WHERE user_id = ${userid};`
   if (numRows > 0) {
     axios.get(ep).then((response) => {
       const albumandsonginfo = response.data;
-      res.render("addsongtouseralbum", {message: "Your albums", albumandsonginfo});
+      res.render("addsongtouseralbum", {message: "Your albums", albumandsonginfo, userid});
     });
   } else {
     let userid = sessionobj.authen;
@@ -1201,6 +1201,52 @@ app.get("/addtoreviewlist", (req, res) => {
     res.json({ data });
   });
 });
+
+app.get("/reviewsofyourcollections", (req, res) => {
+let reviewquery = `SELECT user_album.user_id, user_album.user_album_id, user_album.custom_album_name, review.review_id, review.review_content
+FROM user_album 
+INNER JOIN useralbum_review ON user_album.user_id = useralbum_review.user_album_id
+INNER JOIN review review ON useralbum_review.review_id = review.review_id
+WHERE user_album.user_id = ?`
+
+db.query(reviewquery, (err, row) => {
+  res.render("home", { userdata: firstrow, sysinfo: "Hope you are enjoying our collection!"})
+});
+});
+
+
+app.get("/inspectreviews", (req, res) => {
+  let userid = req.query.userid;
+  let endp = `http://localhost:4000/reviewsofuseralbum/${userid}`;
+
+  axios.get(endp).then((response) => {
+    // res.send(response.data);
+
+    let reviewdata = response.data;
+
+    res.render("reviewsofuseralbum", { reviewdata });
+  });
+});
+
+
+app.get("/reviewsofuseralbum/:userid", (req, res) => {
+  let rowid = req.params.userid;
+
+  let getreviews= `SELECT user_album.user_album_id, user_album.custom_album_name, review.review_id, review.review_content
+FROM user_album 
+INNER JOIN useralbum_review ON user_album.user_album_id = useralbum_review.user_album_id
+INNER JOIN review review ON useralbum_review.review_id = review.review_id
+WHERE user_album.user_id = ${rowid}
+GROUP BY review_id`
+
+
+
+  db.query(getreviews, (err, data) => {
+    if (err) throw err;
+    res.json({ data });
+  });
+});
+
 
 //Renders login page
 app.get("/", (req, res) => {
