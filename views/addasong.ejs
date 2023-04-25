@@ -18,11 +18,14 @@
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="/" class="pure-menu-link">Sign-In</a>
+            <a href="/login" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="/searchalbums" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search albums</a>
+        </li>
+		<li class="pure-menu-item">
+            <a href="/searchuseralbums" class="pure-menu-link">Search user collections</a>
         </li>
         <li class="pure-menu-item">
             <a href="/home" class="pure-menu-link">Home</a>
@@ -34,27 +37,46 @@
 </ul>
 
 
+<div class = "freespace">
 
+</div>
+
+<div class = "addsongbox">
 <div class="pure-g centre">
     <form action="/addsong" method="POST">
         <header>
             <h1><%= message %></h1>
         </header>
         <p>Song title:
+        </p>
         <input name="titleField">
-        </p>
+        
         <p>Time:
-        <input name="timeField">
         </p>
+        <input name="timeField">
+        
 
-        <p> Select album you want to add your song to: </p>
+        <p> Select album you want to add your song to: 
+
+        </p>
+        
+        
+
+ <div class = "addsongselect">
         <select name="albumValue">
         <% albuminfo.forEach((album) => { %>
         <option value="<%= album.album_id %>"><%= album.album_title %></option>
         <% }); %>
      </select>
-        <input type="submit" value="Add Song">
 
+
+     </div>
+     <div class = "freespace">
+
+     </div>
+
+        <input type="submit" value="Add Song">
+    
         </form>
         
         <footer>
@@ -62,7 +84,7 @@
         </footer>
 
 	</div>
-
+</div>
 
 
     

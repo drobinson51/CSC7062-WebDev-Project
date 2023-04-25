@@ -19,34 +19,51 @@
 
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="/" class="pure-menu-link">Sign-In</a>
+            <a href="/login" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="/searchalbums" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search albums</a>
+        </li>
+		<li class="pure-menu-item">
+            <a href="/searchuseralbums" class="pure-menu-link">Search user collections</a>
         </li>
     </ul>
 </div>
 
+<div class = "freespace">
 
+</div>
+<div class = "loginbox">
 <div class="pure-g register">
 	<h3>Welcome back to Stacks of Wax</h3>
 	<p>Sign in if you would.</p>
-	<div class="pure-u-1 pure-u-md-1-2-email">
-        <form action="/" method="POST">
+	<div class="login">
+        <form action="/login" method="POST">
         <p>
-            username: <input name = "emailString">
+           
+            Username:
         </p>
 
-        <p>
-            password: <input name = "passwordString">
-        </p>
+            <input name = "emailString">
+            </div>
+      
 
+        <p>
+            
+            Password: 
+        </p>
+        <input name = "passwordString">
+    
+       
+        <div class = "submitform">
         <input type = "submit" value = "Log-in">
+        </div>
     </form>
     </div>
-
     <div>
+    </div> 
+    <div class = "register">
     <p>Or you could register instead</p>
     <a href="/register" class = "button" >Register</a>
     </div>

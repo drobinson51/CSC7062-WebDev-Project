@@ -18,14 +18,16 @@
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="/" class="pure-menu-link">Sign-In</a>
+            <a href="/login" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="/searchalbums" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search albums</a>
+        </li>
+		<li class="pure-menu-item">
+            <a href="/searchuseralbums" class="pure-menu-link">Search user collections</a>
         </li>
 		</div>
-
 
 <div class="pure-g centre">
     <div class="pure-u-1 pure-u-md-1-2-text">
@@ -41,18 +43,17 @@
 	<p>You are logged in as a: <%= userdata.status %> </p>
 	<p> <%= sysinfo %> </p>
 
-
-	<a href="/addaalbum" class="pure-menu-link">Add an official album to the Stack of Waxn</a>
-	<a href="/addsong" class="pure-menu-link">Add an song to an official album in the Stack of Waxn</a>
-	<a href="/addauseralbum" class="pure-menu-link">Create a personal album</a>
-	<a href="/addsongtouseralbum" class="pure-menu-link">Manage your albums</a>
-	<a href="/searchalbums" class="pure-menu-link">Search through the Stack of Wax for official albums</a>
-	<a href="/searchuseralbums" class="pure-menu-link">Search through the Stack of Wax for community collections</a>
-	<a href="/review" class="pure-menu-link">Leave a review on an official album</a>
-	<a href="/useralbumreview" class="pure-menu-link">Leave a review on a community collection</a>
-	
+<div class= "menuoptions">
+	<a href="/addaalbum" class="pure-menu-link" style="padding-bottom: 2%;">Add an official album to the Stack of Wax</a>
+	<a href="/addsong" class="pure-menu-link" style="padding-bottom: 2%;">Add an song to an official album in the Stack of Wax</a>
+	<a href="/addauseralbum" class="pure-menu-link" style="padding-bottom: 2%;">Create a personal album</a>
+	<a href="/addsongtouseralbum" class="pure-menu-link" style="padding-bottom: 2%;">Manage your albums</a>
+	<a href="/searchalbums" class="pure-menu-link" style="padding-bottom: 2%;">Search through the Stack of Wax for official albums</a>
+	<a href="/searchuseralbums" class="pure-menu-link" style="padding-bottom: 2%;">Search through the Stack of Wax for community collections</a>
+	<a href="/review" class="pure-menu-link" style="padding-bottom: 2%;">Leave a review on an official album</a>
+	<a href="/useralbumreview" class="pure-menu-link" style="padding-bottom: 2%;">Leave a review on a community collection</a>
+</div> 
 </div>
-
    
 
 

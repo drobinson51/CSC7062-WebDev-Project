@@ -2,8 +2,6 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	
-	<!-- links to load UI framework CSS-->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"/>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css" />
@@ -11,18 +9,20 @@
 </head>
 
 <body class = "dark">
-<!-- design your site here -->
-<!-- everything goes into this div -->
+
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="/" class="pure-menu-link">Sign-In</a>
+            <a href="/login" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="/searchalbums" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search albums</a>
+        </li>
+		<li class="pure-menu-item">
+            <a href="/searchuseralbums" class="pure-menu-link">Search user collections</a>
         </li>
         <li class="pure-menu-item">
             <a href="/home" class="pure-menu-link">Home</a>
@@ -30,20 +30,31 @@
 		</div>
 
 
+        <div class = "freespace">
 
+        </div>
+
+        
+<div class = "searchuseralbumsbox">       
 <div class="pure-g centre">
+    <div class="searchuseralbums"></div>
     <form action="/searchuseralbums" method="POST">
         <header>
             <h1><%= titletext %></h1>
         </header>
         <select name = "genretypes">
-            <p> Select genre:
-                <option value="0">Any Genre</option>
-                <option value="1">Nu Metal</option>
-                <option value="2">Rock n Roll</option>
 
-        </p>
-        </select>
+
+            <option value = "0">Any Genre</option>
+             <% genreinfo['data'].forEach( (info)=>{   %>
+                 <% if (info.user_album_id !== null && info.user_album_id !== "") { %>
+                 <option value="<%= info.genre_id%>">"<%= info.name%>"</option>
+                 <% } %>
+                 <% }); %>
+             
+ 
+         </select>
+
         <input type="submit" value="Search Album">
 
         </form>
@@ -53,7 +64,7 @@
         </footer>
 
 	</div>
-
+</div>
 
 
     

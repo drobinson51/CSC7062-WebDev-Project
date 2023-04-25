@@ -125,7 +125,14 @@ app.get("/albumoutput/:rowid", (req, res) => {
 
 //displays web app to search for albums
 app.get("/searchalbums", (req, res) => {
-  res.render("searchalbums", { titletext: "Albums" });
+
+  let endpoint = `http://localhost:4000/genrelist`
+
+  axios.get(endpoint).then((response) => {
+    const genreinfo = response.data;
+    res.render("searchalbums", { titletext: "Albums", genreinfo});
+  });
+  
 });
 
 
@@ -166,6 +173,10 @@ app.post("/albumsearch", (req, res) => {
   let albumyear = req.body.albumyear;
   let genre = req.body.genretypes;
 
+  console.log(artist);
+
+  //paramiterisation, will be the array used for inserting data into db
+  let insertdata = [];
   //base query to be read through, uses an inner join to get relevant data, joined on album and genre tables
   let searchquery = `SELECT album.album_id, album.album_title, album.artist, album.year_of_release, album.album_desc, genre.name 
   FROM album 
@@ -176,35 +187,45 @@ app.post("/albumsearch", (req, res) => {
   if (artist || albumyear || (genre && genre !== "0")) {
     searchquery += ` WHERE `;
 
-    //the artist filter
+    //artist is detected to have anything in it, query expands
     if (artist) {
-      searchquery += `album.artist = '${artist}'`;
+      searchquery += `album.artist = ?`;
+      //pushes artist values into array on ever expanding array
+      insertdata.push(artist);
 
-      //looks to see if album year or genre are also included in filter,
+      //looks if there has been any more data fed in 
       if (albumyear || (genre && genre !== "0")) {
         searchquery += ` AND `;
       }
     }
-    //only album year is sent
+    
+    //looks for album year, if detected adds to query again and pushes another value to array
     if (albumyear) {
-      searchquery += `album.year_of_release = ${albumyear}`;
+      searchquery += `album.year_of_release = ?`;
+      insertdata.push(albumyear);
+
+      //checks for final possible value genre, if it exist adds an "AND"
       if (genre && genre !== "0") {
         searchquery += ` AND `;
       }
     }
     // genre
     if (genre && genre !== "0") {
-      searchquery += `genre.genre_id = ${genre}`;
+      searchquery += `genre.genre_id = ?`;
+      insertdata.push(genre);
+
     }
 
+  
     
   }
 
+  console.log(insertdata);
   //default orders them by descending values, allowing user to see most liked values
   searchquery += ` ORDER BY album.upvote_count DESC`
 
   //db query for the search
-  db.query(searchquery, (err, result) => {
+  db.query(searchquery, insertdata, (err, result) => {
     if (err) throw err;
 
     // Feeds the data back
@@ -231,7 +252,7 @@ app.get("/addaalbum", (req, res) => {
 } else {
 
   // if session authentication fails you are sent back to login
-  res.redirect("/");
+  res.redirect("/login");
 }
 });
 
@@ -295,7 +316,7 @@ app.post("/albumoutput/add", (req, res) => {
   let addalbum = `INSERT INTO album (album_title, artist, year_of_release, album_desc, genre_id)  
                   VALUES (?, ?, ?, ?, ?)`;
 
-//stores object as array, fixes issue with genretype not returning as expected       
+//stores object as array, fixes issue with data not adding as expected     
   let insertdata = [album, artist, year_of_release, album_desc, genre];
 
   //db query to insert the data
@@ -449,7 +470,7 @@ let checkuser = `SELECT * FROM user_album WHERE user_id = ${userid};`
   }
 });
 } else {
-  res.redirect("/");
+  res.redirect("/login");
 }
 });
 // posting of adding song to album
@@ -543,26 +564,30 @@ app.post("/useralbumtracklist/add", (req, res) => {
   });
 });
 
-//gets useralbums search page
+
+
 app.get("/searchuseralbums", (req, res) => {
-  res.render("searchuseralbums", { titletext: "Albums" });
+
+  let endpoint = `http://localhost:4000/genrelist`
+
+  axios.get(endpoint).then((response) => {
+    const genreinfo = response.data;
+    res.render("searchuseralbums", { titletext: "User Collections", genreinfo});
+  });
+  
 });
 
-
-//posts info submitted from webapp
 app.post("/searchuseralbums", (req, res) => {
-  //stores genretypes
+  let artist = req.body.artistField;
+  let albumyear = req.body.albumyear;
   let genre = req.body.genretypes;
 
-  // const insertData = {
-  //   genretypes: genre,
-  // };
+  const insertData = {
+    artistField: artist,
+    albumyear: albumyear,
+    genretypes: genre,
+  };
 
-  //assign to array to fix any issues with genretypes not working as expected
-
-  let genreData = [genre];
-  
-  
   const config = {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -571,17 +596,18 @@ app.post("/searchuseralbums", (req, res) => {
 
   let endpoint = "http://localhost:4000/useralbumsearch";
 
-  axios
-    .post(endpoint, genreData, config)
-    .then((response) => {
+  //axios posts the data, and then the response data is used for the output of the page
+  axios.post(endpoint, insertData, config).then((response) => {
       let albumdata = response.data;
       console.log(albumdata);
-      res.render("useralbumslist", { titletext: "Albums", albumdata });
+      res.render("useralbumslist", { titletext: "User Collections", albumdata });
     })
     .catch((err) => {
       console.log(err.message);
     });
 });
+
+
 
 //API of user album search
 app.post("/useralbumsearch", (req, res) => {
@@ -706,7 +732,7 @@ app.get("/addauseralbum", (req, res) => {
         });
     });
   } else {
-    res.redirect("/");
+    res.redirect("/login");
   }
 });
 
@@ -808,7 +834,7 @@ app.get("/useralbumreview", (req, res) => {
         });
     });
   } else {
-    res.redirect("/");
+    res.redirect("/login");
   }
 });
 
@@ -850,7 +876,7 @@ let insertData = {
       db.query(user, [userid], (err, row) => {
         let firstrow = row[0];
 
-        let ep = `http://localhost:4000/addtoreviewlist/`;
+        let ep = `http://localhost:4000/addtouseralbumreviewlist/`;
 
         axios.get(ep).then((response) => {
             let albumavailable = response.data;
@@ -958,7 +984,7 @@ app.get("/review", (req, res) => {
         });
     });
   } else {
-    res.redirect("/");
+    res.redirect("/login");
   }
 });
 
@@ -1022,11 +1048,13 @@ app.post("/addingreview", (req, res) => {
   voteValue = parseInt(vote);
 
  
-
+ 
 
 // voting queries
-  let addreview = `INSERT INTO review (review_content, user_id) VALUES('${reviewcontent}', ${userid})`;
+  let addreview = `INSERT INTO review (review_content, user_id) VALUES(?, ?)`;
 
+  //paramaterised insert 
+  let reviewdata = [reviewcontent, userid ];
   if (voteValue === 1) {
     addvote = `UPDATE album SET upvote_count = upvote_count + 1 WHERE album.album_id = ${album}`;
   } else if (voteValue === -1) {
@@ -1035,8 +1063,9 @@ app.post("/addingreview", (req, res) => {
     return res.json({ message: "Invalid vote value" });
   }
 
-  //query for adding review
-  db.query(addreview, (err, result) => {
+  //query for adding review, fixes issue with apostrophe's breaking the insert
+  //also somewhat protects against injection
+  db.query(addreview, reviewdata, (err, result) => {
     if (err) throw err;
 
     // Get the last inserted review id
@@ -1100,14 +1129,16 @@ app.get("/inspectreviews", (req, res) => {
 
 //the api part
 app.get("/reviewsofuseralbum/:userid", (req, res) => {
-  let rowid = req.params.userid;
+  let userid = req.params.userid;
 
-  let getreviews= `SELECT user_album.user_album_id, user_album.custom_album_name, review.review_id, review.review_content
-FROM user_album 
-INNER JOIN useralbum_review ON user_album.user_album_id = useralbum_review.user_album_id
-INNER JOIN review review ON useralbum_review.review_id = review.review_id
-WHERE user_album.user_id = ${rowid}
-GROUP BY review_id`
+  let getreviews= `SELECT review.review_content, review.review_id, auth_user.username, user_album.custom_album_name
+  FROM useralbum_review
+  INNER JOIN review ON useralbum_review.review_id = review.review_id
+  INNER JOIN user_album ON useralbum_review.user_album_id = user_album.user_album_id
+  INNER JOIN auth_user ON review.user_id = auth_user.user_id
+  WHERE user_album.user_id = ${userid}`
+  
+  
 
 
 
@@ -1119,13 +1150,13 @@ GROUP BY review_id`
 
 
 //Renders login page
-app.get("/", (req, res) => {
+app.get("/login", (req, res) => {
   res.render("login");
 });
 
 //web app for login Posts these values, your email and string to the DB where it checks them against its values, because of the salting being a promise this has to be an async, otherwise only a promise will be returned
 // uses bcrypt
-app.post("/", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
   let username = req.body.emailString;
   let userpassword = req.body.passwordString;
@@ -1146,15 +1177,14 @@ app.post("/", async (req, res) => {
         sessionobj.authen = rows[0].user_id;
         res.redirect("/home");
       } else {
-        res.redirect("/");
+        res.redirect("/login");
       }
     } else {
-      res.redirect("/");
+      res.redirect("/login");
     }
   });
-} catch(e) {
-  console.log(e);
-  res.status(500).send("User or Password not found")
+} catch(err) {
+  console.log(err);
 
 }
 });
@@ -1184,7 +1214,7 @@ app.post("/admin/register", async (req, res) => {
     "INSERT INTO auth_user (username, password, first_name, last_name, status, age, user_desc) VALUES( ? , ? , ? , ? , ?, ? , ?)";
   db.query(albumsql, [username, password, firstname, lastname, usertype, age, user_desc], (err, rows) => {
       if (err) throw err;
-      res.redirect("/");
+      res.redirect("/login");
     }
   );
   } catch(e) {

@@ -17,34 +17,47 @@
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="/" class="pure-menu-link">Sign-In</a>
+            <a href="/login" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="/searchalbums" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search albums</a>
+        </li>
+		<li class="pure-menu-item">
+            <a href="/searchuseralbums" class="pure-menu-link">Search user collections</a>
+        </li>
 		</div>
 
-</ul>
 
+
+<div class = "freespace">
+
+</div>
+<div class = "registerbox">
 <div class="pure-g centre">
     <form action="/admin/register" method="POST">
         <header>
             <h1>Sign up with us if you would.</h1>
         </header>
         <p>Username:
+        </p>
         <input name="username">
-        </p>
+       
         <p>password:
+        </p>
         <input name="password">
-        </p>
+        
         <p>First Name:
-        <input name="firstname">
         </p>
+        <input name="firstname">
+        
         <p>Last Name:
+        </p>
         <input name="lastname">
         </input>
 
-        <p> User Type: </p>
+        <p> User Type: 
+        </p>
         <select name = "status">
             
             <option name="usertype">Member</option>
@@ -54,17 +67,22 @@
         </select>
 
         <p>Your age:
+        </p>
             <input name="age">
             </input>
 
         </select>
-        <p>A short description of yourself:</p>
+        <p>A short description of yourself:
+        </p>
+        <div class = "textarea">
         <textarea name="userdescript"></textarea>
-  
+    </div>
+    
+    <div class = "registersubmit">
         <input type="submit" value="Register">
-
+    </div>
         </form>
-
+    </div>
 	 
 </div>
     

@@ -17,13 +17,11 @@ body{
   display: flex;
   justify-content: center;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+
+
 }
 
-h3 {
-  font-size: x-large;
-}
+
 
 .pure-u-md-1-2-button {
   position: absolute;
@@ -33,12 +31,6 @@ h3 {
   height: 500px;
   margin-top: -125px;
   margin-left: -250px;
-}
-
-
-.register {
-  display: block;
-  text-align: center;
 }
 
 
@@ -102,7 +94,16 @@ a.btn {
   margin: 0 auto;
 }
 
+.greeting {
+  text-align: center;
+  padding-bottom: 2%;
+}
 
+.purpose {
+    text-align: center;
+    padding-bottom: 2%;
+
+}
 
 input {
   max-width: 100%;
@@ -111,10 +112,372 @@ input {
   box-sizing: border-box;
 }
 
+.freespace {
+  padding-bottom: 5%;
+}
+
+.welcomebox {
+    margin: auto;
+    align-self: center;
+    width: 600px;
+    height: 600px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+
+}
+
+.title {
+  text-align: center;
+  padding-bottom: 2%;
+}
+.albumtitle {
+  text-align: center;
+  padding-bottom: 1%;
+}
+
+.interact {
+  text-align: center;
+  padding-bottom: 2%;
+}
+
+.infocontainer {
+    margin: auto;
+    align-self: center;
+    width: 300px;
+    height: 600px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+}
+.infooutput {
+  text-align: center;
+  padding-bottom: 2%;
+}
+
+.loginbox {
+    margin: auto;
+    align-self: center;
+    width: 600px;
+    height: 600px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+
+
+
+}
+
+.albumbox {
+    margin: auto;
+    align-self: center;
+    width: 200px;
+    height: 150px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+
+
+
+}
+
+
+.submitform {
+  padding-top: 5%;
+  text-align: center;
+  
+
+}
+
+
+
+.register {
+  text-align: center;
+}
+
+.addalbumbox {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 900px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.textarea {
+display:flex;
+ width: 200px;
+ height: 100px;
+}
+
+.select {
+  display: flex;
+  justify-content: center;
+ padding-bottom: 5%;
+}
+
+
+.selectreview {
+  display: flex;
+  justify-content: center;
+   width: 354;
+   height: 67;
+   align-self: center;
+   padding-bottom: 5%;
+  }
+  
+
+
+.registerbox {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 900px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.searchalbumsbox {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 450px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.registersubmit {
+  padding-top: 10%;
+}
+
+.selectalbumgenre {
+
+  display: inline-block;
+  padding-bottom: 10%;
+  
+
+}
+
+.addsongbox {
+  margin: auto;
+  align-self: center;
+  width: 450px;
+  height: 600px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.manageuseralbumbox {
+  margin: auto;
+  align-self: center;
+  width: 450px;
+  height: 450px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.selectmanageuseralbums {
+
+ padding-bottom: 5%;
+}
+
+
+.searchuseralbumsbox {
+  margin: auto;
+  align-self: center;
+  width: 450px;
+  height: 450px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.reviewalbumbox {
+  
+    margin: auto;
+    align-self: center;
+    width: 450px;
+    height: 450px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+  
+  
+  
+}
+
+
+.reviewtextarea {
+  display: flex;
+  justify-content: center;
+   width: 354;
+   height: 67;
+   align-self: center;
+   padding-bottom: 5%;
+  }
+
+
+  
+.homebox {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 900px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+.menuoptions {
+
+
+ text-align: center;
+   
+} 
+
+.reviewsofyourcollection {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 275px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+  padding-bottom: 5%;
+
+}
+
+  
+
+
+
 @media (max-width: 780px) {
   body {
     font-size: 14px;
   }
 }
 
+@media (max-width: 780px) {
+  .welcomebox {
+    margin: auto;
+    align-self: center;
+    width: 300px;
+    height: 600px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
 
+}
+}
+
+@media (max-width: 780px) {
+  .loginbox {
+    margin: auto;
+    align-self: center;
+    width: 300px;
+    height: 600px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+
+}
+}
+
+@media (max-width: 780px) {
+.addsongbox {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 600px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+
+}
+
+
+@media (max-width: 780px) {
+  .manageuseralbumbox {
+    margin: auto;
+    align-self: center;
+    width: 300px;
+    height: 600px;
+    padding-top: 50px;
+    padding: 50px;
+    border: 1px solid white;
+    box-sizing: border-box;
+  
+  }
+  
+  }
+
+  @media (max-width: 780px) {
+    .selectmanageuseralbums {
+      display: flex;
+     padding-bottom: 5%;
+    }
+    
+    
+    
+    }
+
+
+    @media (max-width: 780px) {
+      .searchuseralbumsbox {
+        margin: auto;
+        align-self: center;
+        width: 300px;
+        height: 600px;
+        padding-top: 50px;
+        padding: 50px;
+        border: 1px solid white;
+        box-sizing: border-box;
+      
+      }
+      
+      }
+
+
+      @media (max-width: 780px) {
+        .reviewalbumbox {
+          margin: auto;
+          align-self: center;
+          width: 300px;
+          height: 600px;
+          padding-top: 50px;
+          padding: 50px;
+          border: 1px solid white;
+          box-sizing: border-box;
+        
+        }
+        
+        }

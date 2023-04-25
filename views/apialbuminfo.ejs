@@ -18,11 +18,14 @@
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
-            <a href="/" class="pure-menu-link">Sign-In</a>
+            <a href="/login" class="pure-menu-link">Sign-In</a>
        
         </li>
         <li class="pure-menu-item">
-            <a href="/searchalbums" class="pure-menu-link">Search</a>
+            <a href="/searchalbums" class="pure-menu-link">Search albums</a>
+        </li>
+		<li class="pure-menu-item">
+            <a href="/searchuseralbums" class="pure-menu-link">Search user collections</a>
         </li>
         <li class="pure-menu-item">
             <a href="/home" class="pure-menu-link">Home</a>
@@ -35,19 +38,23 @@
 	<p>A curated collection of some of the finest Albums to have ever been.</p>
 	</div> 
 
-    <div style="width:80%; margin: 0 auto; padding-top: 100px;">
+   
+    <div class = "title">
         <h2><%= titletext %></h2>
         
-        <h3>The Albums, ranked in order of popularity...</h3>
-    
-         <div class="flex one two-600 three-800 four-1000"> 
+        <h3>The albums matching your criteria, ranked in order of popularity...</h3>
+    </div>
       
 
         <% albumdata['data'].forEach( (album)=>{   %>
-            <div>
+            <div class = "albumbox">
+            <div class = "albumtitle">
                 <header><%= album.album_title %></header>
+            </div>
+            <div class = "interact">
                 <a class="button" href="/inspect?item=<%= album.album_id %>">Inspect</a>
             </div>
+        </div>
         <% }); %>
 
     </div>
