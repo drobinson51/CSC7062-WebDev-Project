@@ -328,17 +328,14 @@ app.get("/genrelist", (req, res) => {
 
 
 //getting webapp to add song to albums, brings up list of albums so user can see what album they want to add their newly created song to
-//defines as functions to keep track of asynchronous return
-app.get("/addsong", function (req, res) {
+app.get("/addsong", (req, res) => {
   //
-  axios.get("http://localhost:4000/albumoutput").then(function (response) {
+  axios.get("http://localhost:4000/albumoutput").then( (response) => {
     // gets data of data for the valid inputs to album output
       let albuminfo = response.data.data;
       res.render("addasong", {message: "Add your song to the Stack of Wax", albuminfo});
-    }).catch(function (error) {
-      console.log(error);
-      res.status(500).send("Error retrieving album data");
-    });
+    })
+      
 });
 
 //posting the web app version
@@ -368,16 +365,15 @@ app.post("/addsong", (req, res) => {
 
       // Get album info for rendering the page
       //asynchronous return again handled so it can render the page message when done with the user
-      axios.get("http://localhost:4000/albumoutput").then(function (response) {
+      axios.get("http://localhost:4000/albumoutput").then((response) =>{
           let albuminfo = response.data.data;
           res.render("addasong", {message: `${resmessage}. Would you like to add another?`, albuminfo: albuminfo,});
-        }).catch(function (error) {
-          console.log(error);
-          res.status(500).send("Error retrieving album data");
+        }).catch ((err)=>{
+          console.log(err.message)
         });
-    }).catch((err) => {
-      console.log(err.message);
-    });
+  }).catch ((err)=>{
+    console.log(err.message)
+  });
 });
 
 //API of adding a song to an album
@@ -393,7 +389,7 @@ app.post("/songoutput/add", (req, res) => {
 ///db query to song values 
   db.query(addsong, songvalues, (err, result) => {
     if (err) {
-      res.json({ err });
+      comsole.log( err );
       throw err;
     }
 
@@ -408,7 +404,7 @@ app.post("/songoutput/add", (req, res) => {
 
     db.query(addTracklist, tracklistValues, (err, result) => {
       if (err) {
-        res.json({ err });
+        console.log( err );
         throw err;
       }
 
@@ -897,7 +893,7 @@ app.post("/addinguseralbumreview", (req, res) => {
   } else if (voteValue === -1) {
     addvote = `UPDATE user_album SET upvote_count = upvote_count - 1 WHERE user_album_id = ${album}`;
   } else {
-    return res.json({ message: "Invalid vote value" });
+    console.log("Invalid vote value" );
   }
 
   //query for adding review
@@ -983,7 +979,7 @@ app.post("/review", (req, res) => {
 
   let endpoint = "http://localhost:4000/addingreview/";
 
-
+//vars
   let insertData = {
     descField: reviewcontent,
     userid: userid,
@@ -1022,8 +1018,7 @@ app.post("/addingreview", (req, res) => {
   let vote = req.body.voteValue;
   
 
-  let user_album_id = album;
-
+//checking it is parsed correctly
   voteValue = parseInt(vote);
 
  
@@ -1059,7 +1054,7 @@ app.post("/addingreview", (req, res) => {
       db.query(addvote, (err, result) => {
         if (err) {
           console.log(err);
-          return res.json({ message: "Failed to add vote" });
+          res.json({ message: "Failed to add vote" });
         }
       });
     });
@@ -1076,6 +1071,7 @@ app.get("/addtoreviewlist", (req, res) => {
   });
 });
 
+//db query to check for reviews of albums that you made
 app.get("/reviewsofyourcollections", (req, res) => {
 let reviewquery = `SELECT user_album.user_id, user_album.user_album_id, user_album.custom_album_name, review.review_id, review.review_content
 FROM user_album 
@@ -1088,7 +1084,7 @@ db.query(reviewquery, (err, row) => {
 });
 });
 
-
+//web page of it, uses user id which is taken from the authen
 app.get("/inspectreviews", (req, res) => {
   let userid = req.query.userid;
   let endp = `http://localhost:4000/reviewsofuseralbum/${userid}`;
@@ -1102,7 +1098,7 @@ app.get("/inspectreviews", (req, res) => {
   });
 });
 
-
+//the api part
 app.get("/reviewsofuseralbum/:userid", (req, res) => {
   let rowid = req.params.userid;
 
@@ -1127,7 +1123,7 @@ app.get("/", (req, res) => {
   res.render("login");
 });
 
-//web app for login Posts these values, your email and string to the DB where it checks them against its values, because of the salting being a promise this has to be an async function
+//web app for login Posts these values, your email and string to the DB where it checks them against its values, because of the salting being a promise this has to be an async, otherwise only a promise will be returned
 // uses bcrypt
 app.post("/", async (req, res) => {
   try {
@@ -1176,15 +1172,17 @@ app.post("/admin/register", async (req, res) => {
   let firstname = req.body.firstname;
   let lastname = req.body.lastname;
   let usertype = req.body.status;
+  let age = req.body.age;
+  let user_desc = req.body.userdescript;
 
-  // used to store passwords, selected 10 as it seems reasonable high but not way too high as to slow me down
+  // used to store passwords, selected 10 as it seems reasonable high but not way too high as to slow me down, must await result otherwise promise and no result will return
   let password = await bcrypt.hash(userpassword, 10);
 
   console.log(password);
 
   let albumsql =
-    "INSERT INTO auth_user (username, password, first_name, last_name, status) VALUES( ? , ? , ? , ? , ?)";
-  db.query(albumsql, [username, password, firstname, lastname, usertype], (err, rows) => {
+    "INSERT INTO auth_user (username, password, first_name, last_name, status, age, user_desc) VALUES( ? , ? , ? , ? , ?, ? , ?)";
+  db.query(albumsql, [username, password, firstname, lastname, usertype, age, user_desc], (err, rows) => {
       if (err) throw err;
       res.redirect("/");
     }
@@ -1207,7 +1205,7 @@ app.get("/home", (req, res) => {
       res.render("home", { userdata: firstrow, sysinfo: "Hope you are enjoying our collection!"})
     });
   } else {
-    res.send("Access has been denied");
+    res.redirect("/login");
   }
 });
 

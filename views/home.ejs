@@ -35,26 +35,22 @@
 
 
 
-	<style>
-		.user-options {
-			/* To limit the menu width to the content of the menu: */
-			display: inline-block;
-			
-		}
-	</style>
+
 <div class="pure-menu user-options"> 
 
 	<p>You are logged in as a: <%= userdata.status %> </p>
 	<p> <%= sysinfo %> </p>
-	<!-- <img class="pure-img" src="StackofWax.jpeg"> -->
 
-	
+
+	<a href="/addaalbum" class="pure-menu-link">Add an official album to the Stack of Waxn</a>
+	<a href="/addsong" class="pure-menu-link">Add an song to an official album in the Stack of Waxn</a>
 	<a href="/addauseralbum" class="pure-menu-link">Create a personal album</a>
 	<a href="/addsongtouseralbum" class="pure-menu-link">Manage your albums</a>
 	<a href="/searchalbums" class="pure-menu-link">Search through the Stack of Wax for official albums</a>
 	<a href="/searchuseralbums" class="pure-menu-link">Search through the Stack of Wax for community collections</a>
 	<a href="/review" class="pure-menu-link">Leave a review on an official album</a>
 	<a href="/useralbumreview" class="pure-menu-link">Leave a review on a community collection</a>
+	
 </div>
 
    
