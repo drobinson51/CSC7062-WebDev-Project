@@ -106,16 +106,6 @@ app.get("/albumoutput", (req, res) => {
 app.get("/albumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  // let getalbum = `SELECT album.album_title, album.upvote_count, album.artist, album.album_desc, album.year_of_release, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
-  // FROM album
-  // INNER JOIN genre
-  // ON album.genre_id = genre.genre_id
-  // INNER JOIN album_tracklist
-  // ON album.album_id = album_tracklist.album_id
-  // INNER JOIN song
-  // ON album_tracklist.song_id = song.song_id
-  // WHERE album.album_id = ${rowid}
-  // GROUP BY album.album_id;`;
 
   let getalbum = `SELECT album.album_title, album.artist, album.album_desc, album.year_of_release, genre.name, song.title, song.Time
   FROM album
@@ -577,7 +567,7 @@ app.post("/useralbumtracklist/add", (req, res) => {
 });
 
 
-
+//web app of search user albums
 app.get("/searchuseralbums", (req, res) => {
 
   let endpoint = `http://localhost:4000/genrelist`
@@ -589,14 +579,12 @@ app.get("/searchuseralbums", (req, res) => {
   
 });
 
+//web app post of search user albums
 app.post("/searchuseralbums", (req, res) => {
-  let artist = req.body.artistField;
-  let albumyear = req.body.albumyear;
+ 
   let genre = req.body.genretypes;
 
   const insertData = {
-    artistField: artist,
-    albumyear: albumyear,
     genretypes: genre,
   };
 
@@ -690,19 +678,6 @@ app.get("/useralbumoutput", (req, res) => {
 app.get("/useralbumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  //query to be run
-  // let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, genre.genre_id, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
-  // FROM user_album
-  // INNER JOIN genre
-  // ON user_album.genre_id = genre.genre_id
-  // INNER JOIN user_album_tracklist
-  // ON user_album.user_album_id = user_album_tracklist.user_album_id
-  // INNER JOIN song
-  // ON user_album_tracklist.song_id = song.song_id
-  // INNER JOIN auth_user
-  // ON user_album.user_id = auth_user.user_id
-  // WHERE user_album.user_album_id = ${rowid}
-  // GROUP BY user_album.user_album_id;`
 
   let getuseralbum = `SELECT user_album.custom_album_name, auth_user.username, user_album.album_desc, user_album.upvote_count, genre.name, song.title, song.Time
   FROM user_album
@@ -746,7 +721,7 @@ app.get("/addauseralbum", (req, res) => {
           axios.get(ep2).then((response2) => {
             let genreinfo = response2.data;
 
-            res.render("adduserrecord", { message: "Albums", albumavailable: albumavailable, genreinfo: genreinfo, user: firstrow});
+            res.render("adduserrecord", { message: "Make your own collection", albumavailable: albumavailable, genreinfo: genreinfo, user: firstrow});
           }).catch((error) => {
             console.log(error);
             res.status(500).send("Internal server error");

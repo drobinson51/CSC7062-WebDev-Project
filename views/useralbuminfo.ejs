@@ -11,7 +11,7 @@
 <body class = "dark">
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
-    <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
+    <a href = "/" class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
             <a href="/login" class="pure-menu-link">Sign-In</a>
@@ -91,7 +91,10 @@
          <p> This album contains the songs: </p>
 
          <p>It contains the songs:</p>
-         <select name = "songinfo">
+      
+      
+         <div class = "selectbar">
+            <select name = "songinfo">
              <% albumdata['data'].forEach( (album)=>{   %>
         
           <option><%= album.title %>, length: <%= album.Time %> minutes</option>
@@ -100,6 +103,7 @@
          
           <% }); %>
              </select>
+            </div>
        </main>
       </div>
       </div>

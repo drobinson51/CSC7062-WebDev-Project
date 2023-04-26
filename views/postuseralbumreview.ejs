@@ -11,7 +11,7 @@
 <body class = "dark">
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
-    <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
+    <a href = "/" class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
             <a href="/login" class="pure-menu-link">Sign-In</a>
@@ -40,6 +40,8 @@
         <p>Your id is: <span><%= user.user_id %></span></p>
         <input type="hidden" name="userid" value="<%= user.user_id %>">
 
+
+        <div class = "selectbar">
         <p><%= message %></p>
         <p> Select album: </p>
         <select name = "albumValue">
@@ -48,7 +50,7 @@
             <option value="<%= album.user_album_id%>">"<%= album.custom_album_name%>"</option>
             <% } %>
             <% }); %>
-            
+            </div>  
         </select>
       
         <p>Review Content:</p>
@@ -58,7 +60,7 @@
 
 
         <select name = "voteValue">
-            <p> Select genre:
+            <p> Select vote:
             </p>
             <option value="1">Upvote</option>
             <option value="-1">Downvote</option>

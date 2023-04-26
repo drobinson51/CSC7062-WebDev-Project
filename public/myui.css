@@ -182,7 +182,7 @@ input {
 .addalbumbox {
   margin: auto;
   align-self: center;
-  width: 300px;
+  width: 450px;
   height: 900px;
   padding-top: 50px;
   padding: 50px;
@@ -193,8 +193,10 @@ input {
 
 .textarea {
 display:flex;
- width: 200px;
+ width: 350px;
  height: 100px;
+ justify-content: center;
+ 
 }
 
 .select {
@@ -218,7 +220,7 @@ display:flex;
 .registerbox {
   margin: auto;
   align-self: center;
-  width: 300px;
+  width: 450px;
   height: 900px;
   padding-top: 50px;
   padding: 50px;
@@ -230,7 +232,7 @@ display:flex;
 .searchalbumsbox {
   margin: auto;
   align-self: center;
-  width: 300px;
+  width: 450px;
   height: 450px;
   padding-top: 50px;
   padding: 50px;
@@ -469,3 +471,95 @@ display:flex;
         }
         
         }
+
+
+        @media (max-width: 780px) {
+          .infocontainer {
+            margin: auto;
+            align-self: center;
+            width: 300px;
+            height: 600px;
+            padding-top: 50px;
+            padding: 50px;
+            border: 1px solid white;
+            box-sizing: border-box;
+          
+          }
+          
+          }
+
+
+          @media (max-width: 780px) {
+            .songbar {
+            
+              font-size: x-small;
+            
+            }
+            
+            }
+        
+
+ @media (max-width: 780px) {           
+.searchalbumsbox {
+  margin: auto;
+  align-self: center;
+  width: 300px;
+  height: 450px;
+  padding-top: 50px;
+  padding: 50px;
+  border: 1px solid white;
+  box-sizing: border-box;
+
+}
+            }
+
+
+            @media (max-width: 780px) {   
+
+            .textarea {
+              display:flex;
+               width: 200px;
+               height: 100px;
+               justify-content: center;
+               
+              }
+            }
+
+            @media (max-width: 780px) {   
+            .addalbumbox {
+              margin: auto;
+              align-self: center;
+              width: 300px;
+              height: 900px;
+              padding-top: 50px;
+              padding: 50px;
+              border: 1px solid white;
+              box-sizing: border-box;
+            
+            }
+          }
+
+
+          
+          @media (max-width: 780px) {
+            .selectbar {
+            
+              font-size: x-small;
+            
+            }
+            
+            }
+
+            @media (max-width: 780px) {
+            .registerbox {
+              margin: auto;
+              align-self: center;
+              width: 300px;
+              height: 900px;
+              padding-top: 50px;
+              padding: 50px;
+              border: 1px solid white;
+              box-sizing: border-box;
+            
+            }
+          }
