@@ -106,7 +106,18 @@ app.get("/albumoutput", (req, res) => {
 app.get("/albumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
-  let getalbum = `SELECT album.album_title, album.upvote_count, album.artist, album.album_desc, album.year_of_release, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  // let getalbum = `SELECT album.album_title, album.upvote_count, album.artist, album.album_desc, album.year_of_release, genre.name, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  // FROM album
+  // INNER JOIN genre
+  // ON album.genre_id = genre.genre_id
+  // INNER JOIN album_tracklist
+  // ON album.album_id = album_tracklist.album_id
+  // INNER JOIN song
+  // ON album_tracklist.song_id = song.song_id
+  // WHERE album.album_id = ${rowid}
+  // GROUP BY album.album_id;`;
+
+  let getalbum = `SELECT album.album_title, album.artist, album.album_desc, album.year_of_release, genre.name, song.title, song.Time
   FROM album
   INNER JOIN genre
   ON album.genre_id = genre.genre_id
@@ -115,7 +126,8 @@ app.get("/albumoutput/:rowid", (req, res) => {
   INNER JOIN song
   ON album_tracklist.song_id = song.song_id
   WHERE album.album_id = ${rowid}
-  GROUP BY album.album_id;`;
+  ORDER BY song.song_id`
+
 
   db.query(getalbum, (err, data) => {
     if (err) throw err;
@@ -652,7 +664,7 @@ app.get("/displayuseralbums", (req, res) => {
 });
 
 //display of user album row API output
-app.get("/inspectuseralbums", (req, res) => {
+app.get("/get", (req, res) => {
   let item_id = req.query.item;
   let endp = `http://localhost:4000/useralbumoutput/${item_id}`;
 
@@ -679,7 +691,20 @@ app.get("/useralbumoutput/:rowid", (req, res) => {
   let rowid = req.params.rowid;
 
   //query to be run
-  let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, genre.genre_id, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  // let getuseralbum = `SELECT user_album.custom_album_name, user_album.upvote_count, user_album.upvote_count, auth_user.first_name, auth_user.last_name, user_album.album_desc, genre.name, genre.genre_id, GROUP_CONCAT(song.title SEPARATOR ' ') AS songtitle
+  // FROM user_album
+  // INNER JOIN genre
+  // ON user_album.genre_id = genre.genre_id
+  // INNER JOIN user_album_tracklist
+  // ON user_album.user_album_id = user_album_tracklist.user_album_id
+  // INNER JOIN song
+  // ON user_album_tracklist.song_id = song.song_id
+  // INNER JOIN auth_user
+  // ON user_album.user_id = auth_user.user_id
+  // WHERE user_album.user_album_id = ${rowid}
+  // GROUP BY user_album.user_album_id;`
+
+  let getuseralbum = `SELECT user_album.custom_album_name, auth_user.username, user_album.album_desc, user_album.upvote_count, genre.name, song.title, song.Time
   FROM user_album
   INNER JOIN genre
   ON user_album.genre_id = genre.genre_id
@@ -690,7 +715,7 @@ app.get("/useralbumoutput/:rowid", (req, res) => {
   INNER JOIN auth_user
   ON user_album.user_id = auth_user.user_id
   WHERE user_album.user_album_id = ${rowid}
-  GROUP BY user_album.user_album_id;`;
+  GROUP BY song.song_id`
 
   //db query made with query
   db.query(getuseralbum, (err, data) => {
@@ -1240,7 +1265,7 @@ app.get("/home", (req, res) => {
 });
 
 //landing page of site
-app.get("/index", (req, res) => {
+app.get("/", (req, res) => {
   res.render("index")
 });
 

@@ -2,17 +2,13 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	
-	<!-- links to load UI framework CSS-->
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"/>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css" />
 	<link rel="stylesheet" href="myui.css">
 </head>
 
 <body class = "dark">
-<!-- design your site here -->
-<!-- everything goes into this div -->
+
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
@@ -44,14 +40,12 @@
 	<p> <%= sysinfo %> </p>
 
 <div class= "menuoptions">
-	<a href="/addaalbum" class="pure-menu-link" style="padding-bottom: 2%;">Add an official album to the Stack of Wax</a>
-	<a href="/addsong" class="pure-menu-link" style="padding-bottom: 2%;">Add an song to an official album in the Stack of Wax</a>
-	<a href="/addauseralbum" class="pure-menu-link" style="padding-bottom: 2%;">Create a personal album</a>
-	<a href="/addsongtouseralbum" class="pure-menu-link" style="padding-bottom: 2%;">Manage your albums</a>
-	<a href="/searchalbums" class="pure-menu-link" style="padding-bottom: 2%;">Search through the Stack of Wax for official albums</a>
-	<a href="/searchuseralbums" class="pure-menu-link" style="padding-bottom: 2%;">Search through the Stack of Wax for community collections</a>
-	<a href="/review" class="pure-menu-link" style="padding-bottom: 2%;">Leave a review on an official album</a>
-	<a href="/useralbumreview" class="pure-menu-link" style="padding-bottom: 2%;">Leave a review on a community collection</a>
+	<a class="button" href="/addaalbum">Add an official Album</a>
+	<a class="button" href="/addsong">Add song to an official album</a>
+	<a class="button" href="/addauseralbum">Create a personal Collection</a>
+	<a class="button" href="/addsongtouseralbum">Manage personal collections</a>
+	<a class="button" href="/review">Review official album</a>
+	<a class="button" href="/useralbumreview">Review user collection</a>
 </div> 
 </div>
    

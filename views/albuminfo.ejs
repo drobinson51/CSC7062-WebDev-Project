@@ -3,16 +3,13 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	
-	<!-- links to load UI framework CSS-->
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"/>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css" />
 	<link rel="stylesheet" href="myui.css">
 </head>
 
 <body class = "dark">
-<!-- design your site here -->
-<!-- everything goes into this div -->
+
 
 <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
     <a class="pure-menu-link pure-menu-heading">Stacks Of Wax</a>
@@ -39,52 +36,73 @@
 	</div> 
 
 
+    <% let albumname = "" %>
+    <% let upvotecount = "" %>
+    <% let artist = "" %>
+    <% let albumdesc  = "" %>
+    <% let yearofrelease = "" %>
+    <% let genre  = "" %>
 
 
 
-    
-    <div class = "infocontainer">
-    <div class = "infooutput">
     <% albumdata['data'].forEach( (album)=>{   %>
 
+        <% if (albumname !== album.albumname){ %>
+        <% albumname = album.album_title %>
+        <% } %>
+        <% if (artist !== album.artist){ %>
+        <%  artist = album.artist %>
+        <% } %>
+        <% if (albumdesc !== album.album_desc){ %>
+        <%  albumdesc = album.album_desc  %>
+        <% } %>
+        <% if (yearofrelease !== album.year_of_release){ %>
+        <%  yearofrelease = album.year_of_release  %>
+        <% } %>
+        <% if (genre !== album.name){ %>
+        <%  genre = album.name  %>
+        <% } %>  
+    <% }); %>
+        
+    <div class = "infocontainer">
+    <div class = "infooutput">
+    
+
     <header>
-        <% album.album_title  %>
+        <h2><%= albumname  %></h2>
       </header>
       <main>
         <p>
-            <%= album.artist %>
+            <%= artist%>
         </p>
        
         <p>
-                <%= album.album_desc %>
+                <%= albumdesc %>
         </p>
 
         <p>
-           This album was released in: <%= album.year_of_release %>
+           This album was released in: <%= yearofrelease %>
         </p>
 
         <p>
-            This is a <%= album.name %> album
+            This is a <%= genre %> album
          </p>
 
+        <p>It contains the songs</p>
+        <select name = "songinfo">
+            <% albumdata['data'].forEach( (album)=>{   %>
+       
+         <option><%= album.title %>, length: <%= album.Time %> minutes</option>
         
-         <p>
-
-         This album contains the songs:
-         
-         <%= album.songtitle %> 
-         </p>
-
-         <p>
-
-            This album has a score of:   <%= album.upvote_count %> 
-            
-            </p>
+        
+        
+         <% }); %>
+            </select>
       </main>
 
     </div>
     </div>
-      <% }); %>
+  
 	</div>
 </div>
 
